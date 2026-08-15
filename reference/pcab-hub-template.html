@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P-CAB Intelligence Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap">
+<style>
+:root{
+  --navy-900:#0d2244; --navy-800:#123058; --navy-700:#1a3f6f; --navy-600:#24507f;
+  --orange:#e8721f; --orange-dk:#c85c10; --orange-lt:#fdf0e3;
+  --cream:#fdf3e6; --paper:#fff;
+  --ink:#161e27; --ink-2:#33414f; --ink-3:#5b6977;
+  --line:#e2e0da; --line-2:#cfd6de;
+  --ok:#2f7a45; --mid:#b8860b; --low:#b4462f;
+  --shadow:0 1px 2px rgba(13,34,68,.06),0 6px 20px rgba(13,34,68,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--cream);color:var(--ink);line-height:1.9;font-size:17.5px;font-weight:500;-webkit-font-smoothing:antialiased;letter-spacing:-.004em}
+h1,h2,h3,h4{margin:0;font-weight:800;letter-spacing:-.02em;line-height:1.4}
+a{color:var(--navy-700)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 30px}
+
+/* header */
+.hdr{position:relative;background:linear-gradient(135deg,var(--navy-900) 0%,var(--navy-700) 65%,var(--navy-600) 100%);color:#fff;overflow:hidden}
+.hdr::after{content:"";position:absolute;top:-120px;right:-60px;width:340px;height:340px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,rgba(232,114,31,.42),rgba(232,114,31,.05) 70%)}
+.hdr-in{position:relative;z-index:2;padding:26px 0 22px;display:flex;align-items:center;
+  justify-content:space-between;gap:22px;flex-wrap:wrap}
+.hdr h1{font-size:35px;letter-spacing:-.035em}
+.hdr .meta{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+.pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);
+  padding:6px 14px;border-radius:999px;font-size:13.4px;color:#e2edfa;font-weight:500}
+.pill b{color:#fff}
+
+/* soft slanted (folder) tabs */
+.tabbar{position:sticky;top:0;z-index:50;background:var(--navy-800);padding-top:11px;
+  box-shadow:0 3px 12px rgba(13,34,68,.20)}
+.tabs{display:flex;gap:4px;align-items:flex-end;max-width:1400px;margin:0 auto;padding:0 20px;
+  overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{position:relative;z-index:1;flex:1 1 0;min-width:112px;border:0;background:transparent;cursor:pointer;
+  color:#a9c0dc;font:inherit;font-size:14.8px;font-weight:700;letter-spacing:-.01em;
+  padding:13px 18px 12px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:color .2s ease,padding .2s ease}
+.tab::before{content:"";position:absolute;left:0;right:0;top:0;bottom:0;z-index:-1;
+  background:rgba(255,255,255,.10);
+  border-radius:13px 13px 0 0;
+  transform:perspective(9px) rotateX(1.7deg);
+  transform-origin:bottom center;
+  transition:background .2s ease,box-shadow .2s ease}
+.tab:hover{color:#fff}
+.tab:hover::before{background:rgba(255,255,255,.19)}
+.tab.on{color:#fff;padding-top:17px;padding-bottom:13px;z-index:4}
+.tab.on::before{background:linear-gradient(180deg,#f08a3e 0%,var(--orange) 60%,var(--orange-dk) 100%);
+  box-shadow:0 -4px 14px rgba(232,114,31,.38), inset 0 1px 0 rgba(255,255,255,.28)}
+.tab:focus-visible{outline:2px solid #fff;outline-offset:-4px;border-radius:10px}
+
+/* panels */
+main.wrap{padding:38px 30px 40px}
+.panel{display:none;animation:fade .2s ease}
+.panel.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.sec-h{margin:0 0 10px}
+.sec-h h2{font-size:29px;letter-spacing:-.035em}
+.sec-h .desc{margin:0;font-size:15.2px;color:var(--ink-3);max-width:900px;font-weight:500}
+.sub-h{margin:34px 0 14px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sub-h h3{font-size:19.5px;color:var(--navy-800)}
+.sub-h .note{font-size:13.4px;color:var(--ink-3);font-weight:500}
+.sec{margin-bottom:44px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);overflow:hidden}
+.card-b{padding:4px 0}
+
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-size:15.6px}
+.tbl th{background:#f4f7fb;color:var(--navy-800);font-size:13.9px;font-weight:800;letter-spacing:.02em;text-align:left;
+  padding:16px 22px;border-bottom:2px solid var(--line-2)}
+.tbl td{padding:20px 22px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.8}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl tbody tr:hover{background:#fafbfd}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl .dt{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--navy-800);font-weight:800;font-size:15px}
+.ttl{font-size:16.2px;font-weight:700;color:var(--navy-900);line-height:1.6}
+.jrn{font-size:13.8px;color:var(--ink-3);margin-top:6px;line-height:1.7;font-weight:500}
+.lnk{margin-top:9px;display:flex;gap:14px;flex-wrap:wrap;font-size:13.4px}
+.lnk a{font-weight:600;text-decoration:none}
+.lnk a:hover{text-decoration:underline}
+.lnk span{color:var(--ink-3)}
+.tag{display:inline-block;font-size:12.4px;font-weight:800;padding:3px 9px;border-radius:6px;margin-right:5px;white-space:nowrap}
+.tag.ty{background:#eef3f9;color:var(--navy-700);border:1px solid var(--line-2)}
+.tag.RCT{background:#e7effa;color:#1a4f9c;border-color:#c3d6ef}
+.tag.Meta,.tag.NMA{background:#f0eaf8;color:#5b3a8e;border-color:#d8cbec}
+.tag.SR{background:#e6f2ea;color:var(--ok);border-color:#bfdcc9}
+.tag.GL{background:#fdeee0;color:var(--orange-dk);border-color:#f5d3b4}
+.tag.pc{background:var(--navy-800);color:#fff}
+.tag.dg{background:var(--orange-lt);color:var(--orange-dk);border:1px solid #f2d5b8}
+.lvl{display:inline-block;font-size:13.2px;font-weight:800;padding:5px 15px;border-radius:999px;white-space:nowrap}
+.lvl.hi{background:#e6f2ea;color:var(--ok);border:1px solid #bfdcc9}
+.lvl.md{background:#fdf3dc;color:var(--mid);border:1px solid #ecd9a6}
+.lvl.lo{background:#fbe9e4;color:var(--low);border:1px solid #f0cabd}
+
+/* two-column message boxes */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:0;align-items:start}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);overflow:hidden;
+  display:flex;flex-direction:column}
+.box-h{padding:17px 26px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.box-h h3{font-size:18.6px;color:#fff;letter-spacing:-.02em}
+.box-h .cnt{font-size:13.2px;color:rgba(255,255,255,.82);white-space:nowrap;font-weight:500}
+.box-h.navy{background:linear-gradient(135deg,var(--navy-800),var(--navy-600))}
+.box-h.orange{background:linear-gradient(135deg,var(--orange-dk),var(--orange))}
+.box .bl.flat{gap:0;padding:0}
+.box .bl.flat>li{border:0;border-left:0;border-radius:0;box-shadow:none;background:transparent;
+  padding:24px 26px;border-bottom:1px solid var(--line)}
+.box .bl.flat>li:last-child{border-bottom:0}
+.box .bl.flat .lbl{font-size:15.5px;line-height:1.5;margin-bottom:10px}
+.box .bl.flat .txt{font-size:15px;line-height:1.9;font-weight:500}
+.box .bl.flat .hint{font-size:13.2px;line-height:1.7;margin-top:10px;padding-top:9px;border-top:1px dashed var(--line-2)}
+@media(max-width:980px){.duo{grid-template-columns:1fr}}
+
+/* evidence landscape cards */
+.lgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:start}
+@media(max-width:1100px){.lgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.lgrid{grid-template-columns:1fr}}
+.lcard{background:var(--paper);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);
+  overflow:hidden;display:flex;flex-direction:column;height:100%}
+.lcard-h{padding:18px 26px 16px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;
+  justify-content:space-between;gap:12px}
+.lcard-h .nm{font-size:17.5px;font-weight:800;color:var(--navy-800);letter-spacing:-.02em;line-height:1.4}
+.lcard-b{padding:20px 26px 24px;display:flex;flex-direction:column;gap:14px;flex:1}
+.lnum{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.lnum .big{font-size:34px;font-weight:800;color:var(--navy-800);letter-spacing:-.03em;line-height:1;
+  font-variant-numeric:tabular-nums}
+.lnum .big small{font-size:15px;font-weight:700;color:var(--ink-3);margin-left:3px}
+.lnum .split{font-size:13px;color:var(--ink-3);font-weight:600}
+.lnum .split b{color:var(--navy-700);font-weight:800}
+.lbar{display:flex;height:11px;border-radius:6px;overflow:hidden;background:#eef1f5;border:1px solid var(--line-2)}
+.lbar i{display:block;height:100%}
+.lbar .s1{background:var(--navy-700)} .lbar .s2{background:var(--orange)} .lbar .s3{background:#c9d2dc}
+.ldrugs{display:flex;flex-wrap:wrap;gap:7px}
+.dchip{font-size:12.4px;font-weight:700;padding:4px 10px;border-radius:7px;background:#eef3f9;
+  color:var(--navy-700);border:1px solid var(--line-2);white-space:nowrap}
+.dchip.zas{background:var(--orange-lt);color:var(--orange-dk);border-color:#f2d5b8}
+.dchip.none{background:#fbe9e4;color:var(--low);border-color:#f0cabd}
+.lcard.wide{grid-column:1/-1}
+.lcard.wide .lcard-b{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:20px 28px;align-items:start}
+.lcard.wide .lnum{grid-column:1;align-self:start}
+.lcard.wide .lbar{grid-column:1}
+.lcard.wide .ldrugs{grid-column:1}
+.lcard.wide .pts{grid-column:2;grid-row:1/4;grid-template-columns:repeat(2,1fr);display:grid;gap:10px 26px;align-content:start}
+@media(max-width:760px){.lcard.wide .lcard-b{grid-template-columns:1fr}.lcard.wide .pts{grid-column:1;grid-row:auto;grid-template-columns:1fr}}
+.lnote{font-size:13px;color:var(--ink-3);margin-top:18px;font-weight:500}
+.lnote b{color:var(--navy-700)}
+.lleg{display:flex;gap:18px;flex-wrap:wrap;font-size:12.6px;color:var(--ink-3);margin-top:10px;font-weight:500}
+.lleg span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+/* reference links */
+.refs{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line-2);display:grid;gap:5px}
+.refs .rl{display:flex;gap:10px;align-items:baseline;font-size:13.3px;line-height:1.75;font-weight:500}
+.refs .rl .b{flex:0 0 auto;color:var(--orange-dk);font-weight:800;font-size:11.6px;letter-spacing:.04em}
+.refs a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid transparent}
+.refs a:hover{color:var(--navy-700);border-bottom-color:var(--navy-700)}
+.refs a::after{content:" ↗";font-size:9.5px;color:var(--orange-dk)}
+.refs .noln{color:var(--ink-3)}
+
+/* safety signal */
+.safegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+@media(max-width:1000px){.safegrid{grid-template-columns:1fr}}
+.sbox{background:var(--paper);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.sbox-h{padding:17px 26px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sbox-h h3{font-size:18.2px;color:#fff}
+.sbox-h .c{font-size:13.2px;color:rgba(255,255,255,.8);white-space:nowrap;background:rgba(255,255,255,.16);
+  border-radius:999px;padding:3px 10px;font-weight:700}
+.sbox-h.ppi{background:linear-gradient(135deg,#4a5b6e,#65788c)}
+.sbox-h.pcab{background:linear-gradient(135deg,var(--navy-800),var(--navy-600))}
+.sbox-h.zas{background:linear-gradient(135deg,var(--orange-dk),var(--orange))}
+.sitem{padding:24px 26px;border-bottom:1px solid var(--line)}
+.sitem:last-child{border-bottom:0}
+.sitem .lbl{font-size:15px;font-weight:800;color:var(--navy-800);line-height:1.5;margin-bottom:9px;letter-spacing:-.02em}
+.sitem .txt{font-size:14.6px;color:var(--ink-2);line-height:1.9;font-weight:500}
+.sitem .ev{font-size:11px;color:var(--ink-3);margin-top:9px;padding-top:8px;border-top:1px dashed var(--line-2);line-height:1.65}
+.snone{padding:32px 20px;text-align:center;color:var(--ink-3);font-size:14.8px;line-height:1.85;font-weight:500}
+
+/* overview cards */
+.ovlist{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.ovrow{background:var(--paper);border:1px solid var(--line);border-top:5px solid var(--navy-700);border-radius:13px;
+  padding:24px 26px 26px;box-shadow:var(--shadow);height:100%}
+@media(max-width:1060px){.ovlist{grid-template-columns:1fr}}
+.ovrow.week{border-top-color:var(--gold)}
+.ovrow.navy{border-top-color:var(--navy-700)}
+.ovrow.orange{border-top-color:var(--orange)}
+.ovrow .k{font-size:12.4px;font-weight:800;letter-spacing:.07em;color:var(--orange-dk);margin-bottom:8px}
+.ovrow .km-h{font-size:17.6px;margin-bottom:14px;line-height:1.55}
+.ovrow .chip{padding:6px 11px 7px}
+.ovrow .chip b{font-size:16.6px}
+.ovrow .chip i{font-size:11.6px}
+.ovrow .pts li{font-size:15.2px;line-height:1.82}
+
+/* key-message blocks */
+.km-h{font-size:19px;font-weight:700;color:var(--navy-800);line-height:1.55;letter-spacing:-.02em;margin-bottom:14px}
+.chips{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 16px}
+.chip{display:flex;flex-direction:column;gap:2px;background:linear-gradient(160deg,#fff6ec,#fdeade);
+  border:1px solid #f2d5b8;border-radius:10px;padding:9px 15px 10px;min-width:0}
+.chip b{font-size:18.6px;font-weight:800;color:var(--orange-dk);letter-spacing:-.02em;line-height:1.2;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip i{font-size:12.4px;font-style:normal;font-weight:500;color:#9a6a3c;white-space:nowrap}
+.chip.blue{background:linear-gradient(160deg,#f2f7fd,#e8f0f9);border-color:#cfdcec}
+.chip.blue b{color:var(--navy-700)} .chip.blue i{color:#6b7d92}
+.pts{margin:0;padding:0;list-style:none;display:grid;gap:11px}
+.pts li{position:relative;padding-left:20px;font-size:16px;line-height:1.82;color:var(--ink-2);font-weight:500}
+.pts li::before{content:"";position:absolute;left:2px;top:.62em;width:6px;height:6px;border-radius:2px;
+  background:var(--orange);opacity:.85}
+.pts li b{color:var(--navy-800);font-weight:700}
+.pts.sm li{font-size:15px;padding-left:18px}
+.pts.sm li::before{width:5px;height:5px;top:.66em}
+
+/* inline emphasis */
+mark.st{background:linear-gradient(180deg,transparent 52%,#ffdcae 52%);color:#8a3f04;font-weight:700;
+  padding:0 1px;font-variant-numeric:tabular-nums}
+b.num{color:var(--navy-800);font-weight:700;font-variant-numeric:tabular-nums}
+b.dg{color:var(--navy-700);font-weight:700}
+b.kw{color:var(--ink);font-weight:700}
+
+/* weekly trend card */
+.wstat{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+.wstat>div{background:#f7f9fc;padding:17px 24px}
+.wstat .l{font-size:12.5px;font-weight:800;letter-spacing:.04em;color:var(--ink-3);text-transform:uppercase}
+.wstat .v{font-size:25px;font-weight:800;color:var(--navy-800);letter-spacing:-.02em;line-height:1.25}
+.wstat .v small{font-size:11.5px;font-weight:600;color:var(--ink-3);margin-left:2px}
+.wstat .v.txt{font-size:17.2px;font-weight:800}
+@media(max-width:860px){.wstat{grid-template-columns:repeat(2,1fr)}}
+
+/* bullets */
+.bl{display:grid;gap:20px;margin:0;padding:0;list-style:none}
+.bl>li{position:relative;background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--navy-700);
+  border-radius:13px;padding:24px 26px;box-shadow:var(--shadow)}
+.bl>li.acc{border-left-color:var(--orange)}
+.bl>li.warn{border-left-color:#c9a227;background:#fffdf6}
+.bl .lbl{font-size:16px;font-weight:800;color:var(--navy-800);margin-bottom:10px;line-height:1.5;letter-spacing:-.02em}
+.bl .txt{font-size:15.4px;color:var(--ink-2);line-height:1.9;font-weight:500}
+.ph{color:#9aa7b4;font-style:italic}
+.edit{outline:none;border-radius:4px;border-bottom:1px dotted var(--line-2);transition:background .15s}
+.edit:hover{background:#f3f7fc}
+.edit:focus{background:#fff8ee;box-shadow:0 0 0 2px var(--orange-lt);border-bottom-color:transparent}
+
+.expand{background:none;border:0;color:var(--orange-dk);font:inherit;font-size:13.6px;font-weight:700;cursor:pointer;padding:0;margin-top:8px}
+.expand:hover{text-decoration:underline}
+.abs{display:none;font-size:14.2px;color:var(--ink-3);line-height:1.8;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line-2);font-weight:500}
+tr.open .abs{display:block}
+.empty{padding:34px 20px;text-align:center;color:var(--ink-3);font-size:13px}
+
+/* archive month picker */
+.mrow{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:22px}
+.mbtn{border:1px solid var(--line-2);background:var(--paper);border-radius:9px;padding:9px 17px;font:inherit;font-size:14.8px;font-weight:600;
+  color:var(--ink-2);cursor:pointer;font-variant-numeric:tabular-nums}
+.mbtn:hover{border-color:var(--orange)}
+.mbtn.on{background:var(--navy-800);border-color:var(--navy-800);color:#fff;font-weight:700}
+.mstat{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.mstat>div{background:linear-gradient(160deg,#f7f9fc,#eef3f9);border:1px solid var(--line-2);border-radius:11px;padding:17px 22px}
+.mstat .l{font-size:12.5px;font-weight:800;letter-spacing:.04em;color:var(--ink-3);text-transform:uppercase}
+.mstat .v{font-size:25px;font-weight:800;color:var(--navy-800);letter-spacing:-.02em;line-height:1.2}
+.mstat .s{font-size:13.2px;color:var(--ink-3);margin-top:4px;line-height:1.6;font-weight:500}
+
+/* footer */
+.foot{margin-top:10px;padding:0 0 40px}
+.golink{display:inline-flex;align-items:center;gap:9px;background:var(--navy-800);color:#fff;text-decoration:none;
+  padding:11px 20px;border-radius:10px;font-size:13.5px;font-weight:700;box-shadow:var(--shadow)}
+.golink:hover{background:var(--navy-700)}
+
+@media(max-width:1420px){.tab span:first-child{display:none}.tab{gap:0}}
+@media(max-width:1000px){.tabs{gap:5px}.tab{flex:0 0 auto;min-width:0;padding:13px 16px 12px}}
+@media(max-width:860px){
+  .ovrow{grid-template-columns:1fr;gap:4px}
+  .mstat{grid-template-columns:repeat(2,1fr)}
+  .hdr h1{font-size:23px}
+  .tab{min-width:118px;font-size:12.6px;padding:11px 12px 10px}
+}
+@media print{.tabbar,.expand,.mrow{display:none}.panel{display:block!important;page-break-before:always}body{background:#fff}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="wrap hdr-in">
+    <h1>P-CAB Intelligence Hub</h1>
+    <div class="meta">
+      <span class="pill">데이터 기준일 <b id="mDate">—</b></span>
+      <span class="pill">연결 DB 문헌 <b id="mTotal">—</b>건</span>
+      <span class="pill">P-CAB 관련 <b id="mPcab">—</b>건</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabbar">
+  <div class="tabs" role="tablist">
+    <button class="tab on" role="tab" data-p="p0"><span>📌</span>Overview</button>
+    <button class="tab" role="tab" data-p="p1"><span>📰</span>Weekly Update</button>
+    <button class="tab" role="tab" data-p="p1b"><span>🗄️</span>News Archive</button>
+    <button class="tab" role="tab" data-p="p2"><span>🧠</span>Evidence Intelligence</button>
+    <button class="tab" role="tab" data-p="p3"><span>🗺️</span>Evidence Landscape</button>
+    <button class="tab" role="tab" data-p="p5"><span>🛡️</span>Safety Signal</button>
+  </div>
+</nav>
+
+
+
+<main class="wrap">
+
+  <!-- ============ 0. Overview ============ -->
+  <section class="panel on" id="p0">
+    <div class="ovlist" id="ovlist"></div>
+  </section>
+
+  <!-- ============ 1. Weekly Update & Archive ============ -->
+  <section class="panel" id="p1">
+    <div class="sec-h" style="margin-bottom:16px">
+      <p class="desc" id="wkNote"></p>
+    </div>
+    <section class="box" id="wkTrend" style="margin-bottom:18px">
+      <header class="box-h navy"><h3>이번 주 트렌드 요약</h3><span class="cnt" id="wkChips"></span></header>
+      <div class="wstat" id="wkStats"></div>
+      <ul class="bl flat" id="wkBl"></ul>
+    </section>
+    <div class="card"><div class="card-b"><table class="tbl" id="weekTbl"></table></div></div>
+  </section>
+
+  <!-- ============ 1b. News Archive ============ -->
+  <section class="panel" id="p1b">
+    <div class="sec-h" style="margin-bottom:16px">
+      <p class="desc">출판일 기준 분기(3개월) 단위 집계 · 분기를 선택하면 해당 기간 요약이 표시됩니다.</p>
+    </div>
+    <div class="mrow" id="mrow"></div>
+    <ul class="bl" id="archBl"></ul>
+  </section>
+
+  <!-- ============ 2. Evidence Intelligence ============ -->
+  <section class="panel" id="p2">
+
+    <div class="duo">
+      <section class="box">
+        <header class="box-h navy"><h3>P-CAB 계열 핵심 메시지</h3><span class="cnt">클래스 이펙트 관점</span></header>
+        <ul class="bl flat" id="msgClass"></ul>
+      </section>
+      <section class="box">
+        <header class="box-h orange"><h3>자스타프라잔 핵심 메시지</h3><span class="cnt" id="zasNote"></span></header>
+        <ul class="bl flat" id="msgProd"></ul>
+      </section>
+    </div>
+
+    <div class="sub-h" style="margin-top:32px"><h3>데이터 해석 시 주의할 점</h3></div>
+    <ul class="bl" id="msgCaveat"></ul>
+  </section>
+
+  <!-- ============ 3. Evidence Landscape ============ -->
+  <section class="panel" id="p3">
+    <div class="sec-h" style="margin-bottom:16px">
+      <p class="desc">연결 DB의 P-CAB 관련 문헌 278건을 임상 영역별로 집계한 결과입니다.</p>
+    </div>
+    <div class="lgrid" id="lgrid"></div>
+    <p class="lnote">근거 수준 판정 — <b>높음</b> 지침·메타분석 5건 이상 &amp; RCT 5건 이상 · <b>중간</b> 지침·메타분석 2건 이상 또는 RCT 3건 이상 · <b>낮음</b> 그 외</p>
+  </section>
+
+  <!-- ============ 5. Safety Signal ============ -->
+  <section class="panel" id="p5">
+    <div class="sec-h" style="margin-bottom:16px">
+      <p class="desc">출판일 기준 반기(6개월) 단위 · PPI · P-CAB 계열 · 자스타프라잔의 안전성 관련 문헌을 분리 집계했습니다.</p>
+    </div>
+    <div class="mrow" id="srow"></div>
+    <div class="safegrid" id="sgrid"></div>
+  </section>
+
+  <div class="foot">
+
+
+  </div>
+</main>
+
+<script>window.APP={"gen":"2026-08-14","win":["2026-08-04","2026-08-14"],"total":1305,"pcab":278,"weekly":[{"pd":"2026-08-13","t":"Outcomes of second-generation transoral incisionless fundoplication in a Mediterranean cohort: a retrospective study of the first Turkish experience with typical and extraesophageal gastroesophageal reflux disease symptoms","j":"Clinical Endoscopy (Clin Endosc), 2026, Epub ahead of print, DOI: 10.5946/ce.2025.462","a":"Aslan F, et al.","u":"https://pubmed.ncbi.nlm.nih.gov/42592677/","id":"PMID: 42592677 | DOI: 10.5946/ce.2025.462","ty":"etc.","c":"GERD","s":"터키 단일 기관에서 GERD 환자 28명을 대상으로 2세대 경구강 무절개 위저추벽성형술(TIF 2.0)의 안전성과 단기 유효성을 평가한 전향적 관찰/후향적 분석 연구이다. 시술 6개월 후 GERD-HRQL 및 RSI 점수가 유의하게 감소하였고, 85.7%의 환자가 양성자펌프억제제(PPI) 복용을 중단하였으며 기저 식도염이 있던 환자 전원(24명)에서 내시경적 완전 치유가 관찰되었다. 중대한 합병증은 없었다. 소규모 파일럿 연구로서 TIF 2.0이 GERD 치료의 실행 가능한 대안이 될 수 있음을 시사하며, 향후 다기관 연구의 근거를 제공한다.","d":[],"p":0,"sum":"터키 GERD 환자 28명 대상 2세대 TIF 2.0 전향적/후향적 분석. 6개월 후 85.7%가 PPI를 중단하고 기저 식도염 환자 24명 전원이 내시경적 완전 치유에 도달했으나, 단일기관·소규모 파일럿으로 근거 수준은 낮다."},{"pd":"2026-08-13","t":"Comparison of the efficacy of 14-day sequential therapy and 10-day bismuth quadruple therapy in the second line therapy for Helicobacter pylori infection - A multi-center randomized trial","j":"Journal of the Formosan Medical Association (J Formos Med Assoc), 2026, Epub ahead of print, DOI: 10.1016/j.jfma.2026.08.015","a":"Yang TH, et al.","u":"https://pubmed.ncbi.nlm.nih.gov/42595603/","id":"PMID: 42595603 | DOI: 10.1016/j.jfma.2026.08.015","ty":"RCT","c":"Helicobacter pylori","s":"대만 6개 병원에서 표준 삼제요법에 실패한 H. pylori 감염 성인 155명을 대상으로, 고용량 에소메프라졸을 병용한 14일 순차요법(ST14)과 10일 비스무스 사제요법(BQ10)의 2차 치료 효과를 비교한 다기관 개방표지 무작위 대조시험이다. 제균율은 ITT 분석에서 ST14 60.5% 대 BQ10 87.3%(p<0.0001), PP 분석에서도 BQ10이 유의하게 우수하였다. ST14는 이상반응 발생률이 더 낮았으나(39.5% 대 62.0%), 23S rRNA 돌연변이 보유 균주에서는 ST14의 제균율이 80%로 크게 저하되었다(비보유 균주 99%). 연구진은 2차 치료로 순차요법을 경험적으로 사용해서는 안 되며 비스무스 사제요법을 우선해야 한다고 결론지었다.","d":[],"p":0,"sum":"대만 6개 기관 표준 삼제요법 실패 환자 155명 대상 2차 치료 개방표지 RCT. 제균율은 10일 비스무스 사제요법 87.3% 대 14일 순차요법 60.5%(ITT, p<0.0001)로 사제요법이 우월했으며, 2025 한국 가이드라인의 순차요법 삭제 방향과 일치한다."},{"pd":"2026-08-11","t":"Helicobacter pylori eradication therapy and clinical outcomes in Parkinson's disease: a double-blind randomized placebo-controlled trial","j":"Neurological Sciences. 2026;47(9). DOI: 10.1007/s10072-026-09307-7","a":"Vishwas G, et al.","u":"https://pubmed.ncbi.nlm.nih.gov/42579018/","id":"PMID: 42579018 | DOI: 10.1007/s10072-026-09307-7","ty":"RCT","c":"미분류","s":"이 이중맹검 위약대조 무작위배정 임상시험은 H. pylori 양성 파킨슨병(PD) 환자를 대상으로 표준 3제 제균요법(오메프라졸+아목시실린+클래리스로마이신, 14일)이 운동증상 및 삶의 질에 미치는 영향을 평가하였다. 요소호기검사로 선별된 80명 중 34명이 양성으로 확인되어 30명이 제균군과 위약군에 1:1 무작위배정되었으며, 1차 평가변수는 12주 시점 MDS-UPDRS Part III(온-상태) 운동점수였다. 두 군 간 1차 평가변수에 유의한 차이가 없었고(평균차 -3.9, 95% CI -15.5~7.6, p=0.49), 총 MDS-UPDRS 점수, 비운동증상척도(NMSS), 삶의 질척도(PDQ-39)에서도 유의한 차이는 관찰되지 않았다. 이는 PD 환자에서 H. pylori 제균요법을 운동·비운동증상 개선을 위한 보조전략으로 일상적으로 시행하는 것을 지지하지 않는 결과이다.","d":[],"p":0,"sum":"H. pylori 양성 파킨슨병 환자 대상 이중맹검 위약대조 RCT. 표준 삼제요법(오메프라졸+아목시실린+클래리스로마이신 14일)이 운동증상과 삶의 질에 미치는 영향을 평가한 연구로, 제균요법의 위장관 외 임상적 이득 가능성을 탐색한 근거다."},{"pd":"2026-08-09","t":"Comparison of Keverprazan-based versus esomeprazole-based dual therapy for initial treatment of Helicobacter pylori infection: a prospective, multicenter, randomized controlled trial","j":"Annals of Medicine. 2026;58(1):2706993. DOI: 10.1080/07853890.2026.2706993","a":"Ma Z, et al.","u":"https://pubmed.ncbi.nlm.nih.gov/42572417/","id":"PMID: 42572417 | DOI: 10.1080/07853890.2026.2706993","ty":"RCT","c":"Helicobacter pylori","s":"이 연구는 헬리코박터 파일로리 초치료 환자를 대상으로 케베프라잔(potassium-competitive acid blocker) 기반 이중요법과 에소메프라졸 기반 이중요법의 효과를 비교한 다기관, 전향적, 개방표지 무작위대조시험이다. 총 264명의 환자가 14일간 케베프라잔-아목시실린군(KA) 또는 에소메프라졸-아목시실린군(EA)에 무작위 배정되었으며, 제균율은 ITT 분석에서 KA군 87.9%, EA군 80.3%로 두 군간 통계적으로 유의한 차이는 없었으나 비열등성이 확인되었다(p<0.001). 이상반응 발생률과 복약순응도는 두 군 간 유사하였다. 연구진은 케베프라잔 기반 이중요법이 우수한 내약성과 강력한 산분비 억제 효과를 바탕으로 중국인 집단에서 에소메프라졸 기반 요법을 대체할 수 있는 합리적인 1차 치료 옵션이 될 수 있다고 결론지었다.","d":["케베프라잔"],"p":1,"sum":"H. pylori 초치료 환자 264명 대상 다기관 개방표지 RCT. 케베프라잔-아목시실린 이중요법 87.9% 대 에소메프라졸-아목시실린 80.3%(ITT)로 비열등성이 확인되었으며(p<0.001), P-CAB 기반 이중요법의 클래스 근거를 보강한다."},{"pd":"2026-08-07","t":"Association between Gastric Acid Suppression Therapy and Scattered White Spots in the Duodenum: A Retrospective Observational Study","j":"Endoscopy International Open. 2026;14:a29235524. doi:10.1055/a-2923-5524","a":"Ito M, et al.","u":"https://doi.org/10.1055/a-2923-5524","id":"PMID: 42591903 | DOI: 10.1055/a-2923-5524","ty":"etc.","c":"PPI","s":"일본 단일기관에서 상부위장관내시경을 시행한 200명(PPI/P-CAB 8주 이상 사용자 100명[PPI 58명, P-CAB 42명] vs 산분비억제제 비사용자 100명)을 대상으로 십이지장 산재성 백색반점(scattered white spots, SWS) 발생을 비교한 후향적 관찰연구다. 산분비억제군에서 SWS 양성률이 비사용군 대비 유의하게 높았다(47% vs 15%, OR 4.33, 95% CI 2.20-8.50, p<0.0001). 다변량 로지스틱 회귀분석에서도 산분비억제요법은 SWS 발생의 독립적 위험인자로 확인됐다(보정 OR 6.10, 95% CI 2.89-13.7). 장기 PPI 및 P-CAB 사용이 십이지장 점막의 내시경적 변화와 연관될 가능성을 제시하나, 임상적 의미 규명을 위한 추가 연구가 필요하다.","d":[],"p":1,"sum":"일본 단일기관 후향적 관찰연구 200명. 산분비억제제(PPI 58·P-CAB 42) 8주 이상 사용군에서 십이지장 산재성 백색반점 양성률이 47% 대 15%(보정 OR 6.10)로 유의하게 높았으며, 장기 산억제의 점막 변화 감시 필요성을 시사하는 가설생성적 결과다."},{"pd":"2026-08-04","t":"FAERS-based pharmacovigilance and network toxicology analysis of esomeprazole-associated osteoporosis.","j":"PLoS One, 2026;21(8):e0353264","a":"Wang Y, et al.","u":"https://pubmed.ncbi.nlm.nih.gov/42550808/","id":"PMID: 42550808 | DOI: 10.1371/journal.pone.0353264","ty":"etc.","c":"PPI","s":"2004~2024년 미국 FDA 이상반응보고시스템(FAERS)의 5,500만 건 이상 데이터를 마이닝하여 PPI, 특히 에소메프라졸과 골다공증 사이의 연관성을 분석한 약물감시 연구이다. 4가지 통계적 신호탐지 알고리즘 모두에서 에소메프라졸이 유일하게 양성 신호를 보였으며, 에소메프라졸 복용·고령·여성·저체중이 골다공증 관련 이상반응 보고와 유의하게 연관되었고 중앙 발현 잠복기는 3.5년이었다. 네트워크 독성학 분석에서는 MAPK·Notch·PI3K/AKT 경로를 관련 기전으로 제시하였다. 저자들은 이 결과가 장기 PPI 복용자의 골 건강 위험평가에 참고자료가 될 수 있는 가설생성적 근거라고 밝혔다.","d":[],"p":0,"sum":"2004~2024년 FDA 이상반응보고시스템 5,500만 건 이상을 4개 신호탐지 알고리즘(ROR·PRR·BCPNN·EBGM)으로 분석한 약물감시 연구. 에소메프라졸이 4개 알고리즘 모두에서 골다공증 양성 신호를 보인 유일한 PPI였고 중앙 발현 잠복기는 3.5년으로, 장기 산억제요법의 골 관련 안전성 감시 필요성을 시사한다(보고 기반 연구로 인과관계 입증은 아님).","dupe":2}],"landscape":[{"area":"미란성 식도염 치료","level":"높음","n":39,"hi":15,"rct":13,"oth":11,"note":"지침·메타분석 위주","drugs":[["보노프라잔",23],["테고프라잔",7],["펙수프라잔",5],["자스타프라잔",3]],"key":"미란성 식도염 치료","pts":["NMA 다수 축적","중증(LA C/D)에서 PPI 대비 우위 반복 확인","고용량·이중지연방출형 PPI 대비 우월성은 일관되지 않음"]},{"area":"유지요법","level":"높음","n":16,"hi":5,"rct":6,"oth":5,"note":"RCT 위주","drugs":[["보노프라잔",11],["펙수프라잔",2],["리나프라잔",1],["자스타프라잔",1]],"key":"유지요법·재발 예방","pts":["6개월 유지 근거는 표준용량 PPI와 대등 수준","자스타프라잔 근거 1건으로 최소"]},{"area":"H. pylori 제균 병용","level":"높음","n":145,"hi":33,"rct":59,"oth":53,"note":"RCT 위주","drugs":[["보노프라잔",103],["테고프라잔",26],["케베프라잔",3],["펙수프라잔",3]],"key":"H. pylori 제균요법","pts":["2025 한국·2024 일본 지침이 PPI 대체 옵션으로 명시","보노프라잔-아목시실린 이중요법 근거가 다수","대부분 동아시아 자료"]},{"area":"NSAID 관련 위장관 보호","level":"중간","n":14,"hi":3,"rct":4,"oth":7,"note":"관찰연구·원저 위주","drugs":[["테고프라잔",4],["펙수프라잔",2],["자스타프라잔",1],["보노프라잔",1]],"key":"NSAID·항혈전제 위장관 보호","pts":["RCT보다 관찰연구 비중이 높고 결과 상충","ESGE 2026 내시경 지혈 후 P-CAB 역할 합의 실패"]},{"area":"소화성궤양 치료","level":"높음","n":26,"hi":8,"rct":12,"oth":6,"note":"RCT 위주","drugs":[["보노프라잔",10],["테고프라잔",7],["펙수프라잔",4],["자스타프라잔",2]],"key":"소화성궤양 치료","pts":["자스타프라잔 3상 포함 — 란소프라졸 대비 비열등","보노프라잔 대 PPI 메타분석으로 클래스 근거 확보"]},{"area":"약동학·약력학·DDI","level":"중간","n":25,"hi":1,"rct":11,"oth":13,"note":"관찰연구·원저 위주","drugs":[["보노프라잔",9],["테고프라잔",7],["펙수프라잔",5],["케베프라잔",2]],"key":"약동학·약력학·DDI","pts":["지침·메타분석 1건뿐","클래리스로마이신이 보노프라잔·테고프라잔 노출 증가 (AUC GMR 1.565 / 2.624)"]},{"area":"상부위장관 출혈·ESD 후 궤양","level":"중간","n":18,"hi":4,"rct":7,"oth":7,"note":"RCT 위주","drugs":[["보노프라잔",7],["테고프라잔",4],["펙수프라잔",1]],"key":"상부위장관 출혈·ESD 후 궤양","pts":["ESD 후 지연출혈에서 보노프라잔 우위 (RR 0.46)","궤양 치유율 차이는 없음","자스타프라잔 근거 0건"]},{"area":"안전성·장기투여","level":"높음","n":16,"hi":5,"rct":5,"oth":6,"note":"관찰연구·원저 위주","drugs":[["보노프라잔",10],["테고프라잔",4],["펙수프라잔",3],["자스타프라잔",2]],"key":"안전성·장기투여","pts":["고가스트린혈증·점막변화 장기 감시 필요성이 지침·전문가 리뷰에서 반복 지적"]},{"area":"비미란성 역류질환(NERD)·증상조절","level":"중간","n":11,"hi":2,"rct":3,"oth":6,"note":"관찰연구·원저 위주","drugs":[["보노프라잔",10],["테고프라잔",3],["펙수프라잔",3],["자스타프라잔",2]],"key":"비미란성 역류질환(NERD)·증상조절","pts":["위약 대조 근거 중심","PPI 대비 직접비교 지침·메타분석 부족"]},{"area":"식도외 증상·기타 적응증","level":"중간","n":11,"hi":2,"rct":7,"oth":2,"note":"RCT 위주","drugs":[["보노프라잔",7],["펙수프라잔",5],["자스타프라잔",2],["테고프라잔",2]],"key":"식도외 증상·기타 적응증","pts":["RCT 비중은 높으나 절대 건수가 적어 결론 도출에 제약"]}],"archive":[{"m":"2026 Q3","period":"2026년 7~9월 (8월까지)","n":291,"p":36,"hi":38,"rct":32,"cats":[["Helicobacter pylori",103],["GERD",96],["PPI",29]],"drugs":[["보노프라잔",13],["테고프라잔",12],["자스타프라잔",3],["펙수프라잔",3]],"hA":"Helicobacter pylori 중심 분기 — 전체 291건 중 P-CAB 관련 36건(12%)","chipsA":[["291건","전체 출판"],["36건","P-CAB 관련"],["38 / 32건","지침·메타분석 / RCT"]],"ptsA":["카테고리 — Helicobacter pylori 103건 · GERD 96건 · PPI 29건","P-CAB 임상영역 — H. pylori 제균 병용 21건 · 약동학·약력학·DDI 9건 · 소화성궤양 치료 7건","성분별 — 보노프라잔 13건 · 테고프라잔 12건 · 자스타프라잔 3건 · 펙수프라잔 3건"],"hB":"가이드라인 7건 발표 — 권고 변화가 이 분기의 핵심","chipsB":[["7건","가이드라인"],["1건","NMA"],["30건","Meta · SR"]],"ptsB":["<b>가이드라인</b> — 몬트리올 컨센서스와 라이온 컨센서스 등 GERD 진단기준의 발전 과정을 정리하고, 최신 라이온 컨센서스 2.0을 임상에 적용하는 방법을…","<b>가이드라인</b> — GERD 진단은 증상 기반 접근에서 객관적 검사 기반 전략으로 발전해왔으며, 이 종설은 Lyon Consensus 2.0의 개정 기준을…","<b>가이드라인</b> — 2020년 한국 가이드라인 발표 이후 클래리스로마이신 내성률이 17.8%에서 33.3%로 상승하고 P-CAB이 도입됨에 따라…"],"refsB":[{"t":"Gastroesophageal Reflux Disease and Reflux-like Phenotypes: Using Lyon Consensus 2.0 to Guid… (2026-07 · Guideline)","u":"https://doi.org/10.5056/jnm26021"},{"t":"위식도역류질환의 최신 진단 전략: Lyon Consensus 2.0을 중심으로 (Modern Diagnostic Strategies for Gastroesophage… (2026-07 · Guideline)","u":"https://doi.org/10.4166/kjg.2026.038"},{"t":"Evidence-Based Guidelines for the Diagnosis and Treatment of Helicobacter pylori Infection i… (2026-07 · Guideline)","u":"https://doi.org/10.1111/hel.70149"}]},{"m":"2026 Q2","period":"2026년 4~6월","n":347,"p":48,"hi":46,"rct":31,"cats":[["Helicobacter pylori",117],["GERD",111],["PPI",46]],"drugs":[["보노프라잔",26],["테고프라잔",6],["펙수프라잔",5],["리나프라잔",1]],"hA":"Helicobacter pylori 중심 분기 — 전체 347건 중 P-CAB 관련 48건(14%)","chipsA":[["347건","전체 출판"],["48건","P-CAB 관련"],["46 / 31건","지침·메타분석 / RCT"]],"ptsA":["카테고리 — Helicobacter pylori 117건 · GERD 111건 · PPI 46건","P-CAB 임상영역 — H. pylori 제균 병용 26건 · 미란성 식도염 치료 6건 · 안전성·장기투여 4건","성분별 — 보노프라잔 26건 · 테고프라잔 6건 · 펙수프라잔 5건 · 리나프라잔 1건"],"hB":"가이드라인 8건 발표 — 권고 변화가 이 분기의 핵심","chipsB":[["8건","가이드라인"],["3건","NMA"],["35건","Meta · SR"]],"ptsB":["<b>가이드라인</b> — PRISMA-ScR 지침에 따라 PubMed, Embase, Cochrane Library, KoreaMed를 2025년 10월까지 검색한…","<b>가이드라인</b> — 100개 이상의 중국 내 의료기관의 임상 경험과 전문가 합의를 바탕으로 개발된 GERD 수술법인 W-H…","<b>가이드라인</b> — 유럽소화기내시경학회(ESGE)가 2021년 소화성궤양 출혈 진료지침을 개정한 2026년 업데이트로, 내시경 전후 처치, 지혈 방법 선택,…"],"refsB":[{"t":"Sex and Gender Differences in Peptic Ulcer Disease: A Scoping Review with Exploratory Quanti… (2026-06 · Guideline)","u":"https://doi.org/10.5009/gnl260054"},{"t":"Standardized W-H fundoplication procedure for gastroesophageal reflux disease (2026). (2026-06 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/42359024/"},{"t":"Endoscopic diagnosis and management of peptic ulcer bleeding: European Society of Gastrointe… (2026-05 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/42127996/"}]},{"m":"2026 Q1","period":"2026년 1~3월","n":126,"p":37,"hi":33,"rct":16,"cats":[["Helicobacter pylori",49],["GERD",33],["PPI",21]],"drugs":[["보노프라잔",23],["테고프라잔",7],["케베프라잔",1],["펙수프라잔",1]],"hA":"Helicobacter pylori 중심 분기 — 전체 126건 중 P-CAB 관련 37건(29%)","chipsA":[["126건","전체 출판"],["37건","P-CAB 관련"],["33 / 16건","지침·메타분석 / RCT"]],"ptsA":["카테고리 — Helicobacter pylori 49건 · GERD 33건 · PPI 21건","P-CAB 임상영역 — H. pylori 제균 병용 21건 · 미란성 식도염 치료 4건 · 식도외 증상·기타 적응증 3건","성분별 — 보노프라잔 23건 · 테고프라잔 7건 · 케베프라잔 1건 · 펙수프라잔 1건"],"hB":"가이드라인 4건 발표 — 권고 변화가 이 분기의 핵심","chipsB":[["4건","가이드라인"],["3건","NMA"],["26건","Meta · SR"]],"ptsB":["<b>가이드라인</b> — 아시아태평양소화기학회(APAGE)가 위전암성 병변(만성 위축성 위염, 장상피화생, 이형성증)의 감시 및 관리에 대해 발표한 공식 임상…","<b>가이드라인</b> — 사우디 중환자의학회와 스칸디나비아 마취중환자의학회가 공동 개발한 지역맥락화 진료지침으로, 2024년 SCCM/ASHP 지침을 개작했다","<b>가이드라인</b> — 미국소화기학회(AGA) 임상진료업데이트로서 위 점막 용종의 진단 및 관리에 대한 전문가 검토(진료지침)다"],"refsB":[{"t":"Asian Pacific Association of Gastroenterology task force recommendations on surveillance for… (2026-03 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/41057234/"},{"t":"Recommendations for Stress Ulcer Prophylaxis in Critically Ill Adults. (2026-03 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/41655594/"},{"t":"AGA Clinical Practice Update on Management of Gastric Polyps: Expert Review. (2026-02 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/41711625/"}]},{"m":"2025 Q4","period":"2025년 10~12월","n":32,"p":4,"hi":4,"rct":2,"cats":[["GERD",22],["ERD",3],["PPI",3]],"drugs":[["보노프라잔",2]],"hA":"GERD 중심 분기 — 전체 32건 중 P-CAB 관련 4건(12%)","chipsA":[["32건","전체 출판"],["4건","P-CAB 관련"],["4 / 2건","지침·메타분석 / RCT"]],"ptsA":["카테고리 — GERD 22건 · ERD 3건 · PPI 3건","P-CAB 임상영역 — 미란성 식도염 치료 2건 · 비미란성 역류질환(NERD)·증상조절 1건","성분별 — 보노프라잔 2건"],"hB":"메타분석·체계적 문헌고찰 4건 중심","chipsB":[["4건","Meta · SR"]],"ptsB":["<b>메타분석</b> — TLR2 유전자의 rs3804099 및 del -196~-174 다형성과 H","<b>메타분석</b> — 미란성 식도염(EE) 치료에서 보노프라잔(P-CAB)과 란소프라졸(PPI)의 효능을 비교하고 용량-기간 반응관계를 메타회귀분석으로 평가한…","<b>메타분석</b> — 간경변 환자에서 식도정맥류 내시경적 밴드결찰술(EBL) 후 양성자펌프억제제(PPI) 사용의 유용성을 평가한 체계적문헌고찰 및 메타분석으로,…"],"refsB":[{"t":"TLR2 variants and Helicobacter pylori infection: revisiting a controversial link. (2025-12 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/41503064/"},{"t":"Dose and duration shape the efficacy of vonoprazan versus lansoprazole for erosive esophagit… (2025-12 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/41466866/"},{"t":"Re-Evaluating the Role of Proton Pump Inhibitors After Endoscopic Band Ligation of Esophagea… (2025-10 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/41118529/"}]},{"m":"2025 Q3","period":"2025년 7~9월","n":31,"p":14,"hi":10,"rct":4,"cats":[["PPI",10],["P-CAB",10],["GERD",5]],"drugs":[["보노프라잔",9],["테고프라잔",4],["레바프라잔",1],["자스타프라잔",1]],"hA":"PPI 중심 분기 — 전체 31건 중 P-CAB 관련 14건(45%)","chipsA":[["31건","전체 출판"],["14건","P-CAB 관련"],["10 / 4건","지침·메타분석 / RCT"]],"ptsA":["카테고리 — PPI 10건 · P-CAB 10건 · GERD 5건","P-CAB 임상영역 — H. pylori 제균 병용 7건 · 유지요법 2건 · 약동학·약력학·DDI 2건","성분별 — 보노프라잔 9건 · 테고프라잔 4건 · 레바프라잔 1건 · 자스타프라잔 1건"],"hB":"가이드라인 1건 발표 — 권고 변화가 이 분기의 핵심","chipsB":[["1건","가이드라인"],["9건","Meta · SR"]],"ptsB":["<b>가이드라인</b> — 이탈리아 소화기학·간학·영양학회(SIGENP)가 소아·청소년 호산구성식도염(EoE) 관리를 위해 제정한 진료지침으로 주요 성인…","<b>메타분석</b> — MEDLINE·Embase 검색을 통해 revaprazan, 보노프라잔, 테고프라잔, 펙수프라잔, 케버프라잔, 자스타프라잔의 약동학 연구…","<b>메타분석</b> — RCT 14건(이 중 5건은 낮은 편향위험) 자료를 바탕으로 클로피도그레 복용자에서 PPI 병용 여부에 따른 심협관사건과 위장관출혈 위험을…"],"refsB":[{"t":"Eosinophilic esophagitis in children and adolescents: a clinical practice guideline (2025-07 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/40702503/"},{"t":"Clinical pharmacokinetics of potassium competitive acid blockers: a systematic review and me… (2025-07 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40697654/"},{"t":"Efficacy and Safety of Clopidogrel With and Without a Proton Pump Inhibitor: A Systematic Re… (2025-08 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40685887/"}]},{"m":"2025 Q2","period":"2025년 4~6월","n":34,"p":20,"hi":5,"rct":12,"cats":[["P-CAB",18],["PPI",7],["Helicobacter pylori",6]],"drugs":[["보노프라잔",14],["펙수프라잔",2],["테고프라잔",2],["리나프라잔",1]],"hA":"P-CAB 중심 분기 — 전체 34건 중 P-CAB 관련 20건(59%)","chipsA":[["34건","전체 출판"],["20건","P-CAB 관련"],["5 / 12건","지침·메타분석 / RCT"]],"ptsA":["카테고리 — P-CAB 18건 · PPI 7건 · Helicobacter pylori 6건","P-CAB 임상영역 — H. pylori 제균 병용 10건 · 상부위장관 출혈·ESD 후 궤양 3건 · 미란성 식도염 치료 2건","성분별 — 보노프라잔 14건 · 펙수프라잔 2건 · 테고프라잔 2건 · 리나프라잔 1건"],"hB":"메타분석·체계적 문헌고찰 5건 중심","chipsB":[["5건","Meta · SR"]],"ptsB":["<b>메타분석</b> — RCT 13건을 포함한 메타분석으로 레바미피드와 위약·PPI를 비교하였다","<b>메타분석</b> — 245개 메타분석을 종합한 엄브렉라리뷰로 117개 위험/보호인자를 분류함(PROSPERO 등록)","<b>메타분석</b> — RCT 13건, 4,023명을 포함한 메타분석으로 보노프라잔 고용량이중요법(VA)을 PPI 고용량이중요법 및 비스무스사구요법과 비교하였다"],"refsB":[{"t":"Efficacy of Rebamipide in the Prevention of Nonsteroidal Anti-Inflammatory Drug-Induced Gast… (2025-05 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40366001/"},{"t":"Risk factors for gastric cancer: an umbrella review of systematic reviews and meta-analyses (2025-06 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40641920/"},{"t":"The efficacy and safety of vonoprazan-based high-dose dual therapy for eradication of Helico… (2025-04 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40220504/"}]},{"m":"2025 Q1","period":"2025년 1~3월","n":38,"p":22,"hi":11,"rct":14,"cats":[["P-CAB",18],["Helicobacter pylori",10],["GERD",5]],"drugs":[["보노프라잔",15],["테고프라잔",6]],"hA":"P-CAB 중심 분기 — 전체 38건 중 P-CAB 관련 22건(58%)","chipsA":[["38건","전체 출판"],["22건","P-CAB 관련"],["11 / 14건","지침·메타분석 / RCT"]],"ptsA":["카테고리 — P-CAB 18건 · Helicobacter pylori 10건 · GERD 5건","P-CAB 임상영역 — H. pylori 제균 병용 15건 · 약동학·약력학·DDI 3건 · 식도외 증상·기타 적응증 2건","성분별 — 보노프라잔 15건 · 테고프라잔 6건"],"hB":"가이드라인 1건 발표 — 권고 변화가 이 분기의 핵심","chipsB":[["1건","가이드라인"],["1건","NMA"],["9건","Meta · SR"]],"ptsB":["<b>가이드라인</b> — 미국소화기학회(ACG)의 호산구성식도염(EoE) 최신 임상진료지침으로 GRADE 방법론을 사용해 진단, 치료, 모니터링, 소아 특이사항을…","<b>네트워크 메타분석</b> — 중국 제5차 합의문이 권고하는 H.pylori 제균요법에 대해 55개 연구·130개 치료군을 포함한 네트워크 메타분석이다","<b>메타분석</b> — 24개 연구, 소아·청소년 7,036명을 포함한 체계적 문헌고찰 및 메타분석이다(PROSPERO 등록)"],"refsB":[{"t":"ACG Clinical Guideline: Diagnosis and Management of Eosinophilic Esophagitis (2025-01 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/39745304/"},{"t":"Guideline-based bismuth quadruple therapy for helicobacter pylori infection in China: A syst… (2025-02 · NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/39977453/"},{"t":"Global Prevalence of Helicobacter pylori Infection-Associated Gastric Preneoplastic Lesions … (2025-01 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40018952/"}]},{"m":"2024 Q4","period":"2024년 10~12월","n":128,"p":24,"hi":13,"rct":6,"cats":[["GERD",39],["Helicobacter pylori",33],["동반질환",21]],"drugs":[["보노프라잔",16],["테고프라잔",5],["펙수프라잔",1],["케베프라잔",1]],"hA":"GERD 중심 분기 — 전체 128건 중 P-CAB 관련 24건(19%)","chipsA":[["128건","전체 출판"],["24건","P-CAB 관련"],["13 / 6건","지침·메타분석 / RCT"]],"ptsA":["카테고리 — GERD 39건 · Helicobacter pylori 33건 · 동반질환 21건","P-CAB 임상영역 — H. pylori 제균 병용 11건 · 미란성 식도염 치료 6건 · 유지요법 2건","성분별 — 보노프라잔 16건 · 테고프라잔 5건 · 펙수프라잔 1건 · 케베프라잔 1건"],"hB":"가이드라인 2건 발표 — 권고 변화가 이 분기의 핵심","chipsB":[["2건","가이드라인"],["1건","NMA"],["10건","Meta · SR"]],"ptsB":["<b>가이드라인</b> — 유럽 전문가 23명이 델파이 기법으로 인후두역류질환(LPRD) 진단·치료 36개 권고문을 도출하였다","<b>가이드라인</b> — ASGE가 GRADE 방법론에 기반해 개정한 GERD 진단·관리 임상진료지침이다","<b>네트워크 메타분석</b> — 12편의 RCT를 분석한 네트워크 메타분석으로 P-CAB과 PPI의 용량별 효능·안전성을 비교했다"],"refsB":[{"t":"European clinical practice guideline: managing and treating laryngopharyngeal reflux disease (2024-12 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/39719472/"},{"t":"American Society for Gastrointestinal Endoscopy guideline on the diagnosis and management of… (2024-12 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/40012897/"},{"t":"Network Meta-Analysis of Comparing Different Dosages of Potassium-Competitive Acid Blocker W… (2024-11 · NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/39412166/"}]},{"m":"2024 Q3","period":"2024년 7~9월","n":89,"p":23,"hi":37,"rct":21,"cats":[["Helicobacter pylori",33],["GERD",26],["PPI",9]],"drugs":[["보노프라잔",12],["자스타프라잔",2],["테고프라잔",1],["케베프라잔",1]],"hA":"Helicobacter pylori 중심 분기 — 전체 89건 중 P-CAB 관련 23건(26%)","chipsA":[["89건","전체 출판"],["23건","P-CAB 관련"],["37 / 21건","지침·메타분석 / RCT"]],"ptsA":["카테고리 — Helicobacter pylori 33건 · GERD 26건 · PPI 9건","P-CAB 임상영역 — H. pylori 제균 병용 12건 · 소화성궤양 치료 4건 · 약동학·약력학·DDI 3건","성분별 — 보노프라잔 12건 · 자스타프라잔 2건 · 테고프라잔 1건 · 케베프라잔 1건"],"hB":"가이드라인 5건 발표 — 권고 변화가 이 분기의 핵심","chipsB":[["5건","가이드라인"],["5건","NMA"],["27건","Meta · SR"]],"ptsB":["<b>가이드라인</b> — 미국소화기학회(AGA)가 발간한 임상실무 업데이트로, 칼륨경쟁적위산분비차단제(P-CAB)를 GERD, 헬리코박터 파일로리 감염, 소화성궤양…","<b>가이드라인</b> — 미국소화기내과학회(ACG)가 발간한 헬리코박터 파일로리 감염 치료에 대한 공식 임상진료지침이다","<b>가이드라인</b> — 유럽소아소화기영양학회(ESPGHAN)와 북미소아소화기영양학회(NASPGHAN)가 공동으로 개정한 소아청소년 헬리코박터 파일로리 감염 관리에…"],"refsB":[{"t":"AGA Clinical Practice Update on Integrating Potassium-Competitive Acid Blockers Into Clinica… (2024-09 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/39269391/"},{"t":"ACG Clinical Guideline: Treatment of Helicobacter pylori Infection (2024-09 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/39626064/"},{"t":"Updated joint ESPGHAN/NASPGHAN guidelines for management of Helicobacter pylori infection in… (2024-08 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/39148213/"}]},{"m":"2024 Q2","period":"2024년 4~6월","n":130,"p":29,"hi":15,"rct":10,"cats":[["GERD",39],["Helicobacter pylori",34],["동반질환",18]],"drugs":[["보노프라잔",20],["테고프라잔",7],["펙수프라잔",2],["레바프라잔",1]],"hA":"GERD 중심 분기 — 전체 130건 중 P-CAB 관련 29건(22%)","chipsA":[["130건","전체 출판"],["29건","P-CAB 관련"],["15 / 10건","지침·메타분석 / RCT"]],"ptsA":["카테고리 — GERD 39건 · Helicobacter pylori 34건 · 동반질환 18건","P-CAB 임상영역 — H. pylori 제균 병용 15건 · 소화성궤양 치료 6건 · 비미란성 역류질환(NERD)·증상조절 4건","성분별 — 보노프라잔 20건 · 테고프라잔 7건 · 펙수프라잔 2건 · 레바프라잔 1건"],"hB":"가이드라인 3건 발표 — 권고 변화가 이 분기의 핵심","chipsB":[["3건","가이드라인"],["3건","NMA"],["9건","Meta · SR"]],"ptsB":["<b>가이드라인</b> — 국제식도질환학회(ISDE)가 대사·비만수술 또는 내시경적 비만치료 전 위식도 기능평가를 위해 시행한 델파이 합의문이다","<b>가이드라인</b> — 한국인 위암 발생률이 세계 최고 수준이고 선별내시경 확산으로 위축성위염·장상피화생 진단이 흔해진 상황에서 대한헬리코박터및상부위장관연구학회가…","<b>가이드라인</b> — 미국대사비만수술학회(ASMBS)가 발표한 위치성명으로, 비만수술과 동반 시행되는 파라식도열공탈장교정술에 대한 표준화된 기술 및 코딩 방법을…"],"refsB":[{"t":"Gastro-esophageal diagnostic workup before bariatric surgery or endoscopic treatment for obe… (2024-04 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/38281990/"},{"t":"[Clinical Practice Guideline for Gastritis in Korea]. (2024-06 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/40502844/"},{"t":"American Society for Metabolic and Bariatric Surgery position statement on describing and co… (2024-06 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/38969592/"}]},{"m":"2024 Q1","period":"2024년 1~3월","n":44,"p":14,"hi":10,"rct":5,"cats":[["GERD",23],["Helicobacter pylori",12],["ERD",4]],"drugs":[["보노프라잔",12],["테고프라잔",3],["펙수프라잔",1]],"hA":"GERD 중심 분기 — 전체 44건 중 P-CAB 관련 14건(32%)","chipsA":[["44건","전체 출판"],["14건","P-CAB 관련"],["10 / 5건","지침·메타분석 / RCT"]],"ptsA":["카테고리 — GERD 23건 · Helicobacter pylori 12건 · ERD 4건","P-CAB 임상영역 — 미란성 식도염 치료 5건 · H. pylori 제균 병용 5건 · 유지요법 3건","성분별 — 보노프라잔 12건 · 테고프라잔 3건 · 펙수프라잔 1건"],"hB":"NMA 2건 — 계열·요법 간 비교 근거 축적","chipsB":[["2건","NMA"],["8건","Meta · SR"]],"ptsB":["<b>네트워크 메타분석</b> — 중증(LA Grade C/D) 미란성 식도염에서 P-CAB(보노프라잔·테고프라잔·케베프라잔)과 PPI 6종의 치유효과를 비교한 네트워크…","<b>네트워크 메타분석</b> — 저용량 아스피린을 장기 복용하는 소화성궤양 병력 환자에서 궤양 재발 및 위장관 출혈 예방에 효과적인 약물을 규명한 체계적 문헌고찰 및…","<b>메타분석</b> — 중증(LA Grade C/D) 및 경증(Grade A/B) 미란성 식도염에서 보노프라잔 20mg과 란소프라졸 30mg의 치유율을 비교한…"],"refsB":[{"t":"Comparative Efficacy of P-CAB vs Proton Pump Inhibitors for Grade C/D Esophagitis: A Systema… (2024-02 · NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/38345252/"},{"t":"Pantoprazole and Vonoprazan Performed Well in Preventing Peptic Ulcer Recurrence in Low-Dose… (2024-01 · NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/38252210/"},{"t":"Vonoprazan is superior to lansoprazole for healing of severe but not mild erosive esophagiti… (2024-02 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/38353152/"}]}],"zas":9,"drugs":[["보노프라잔",165],["테고프라잔",54],["펙수프라잔",20],["자스타프라잔",9],["케베프라잔",5],["리나프라잔",2],["레바프라잔",2]],"notion":"https://app.notion.com/p/fe11fe2ad0c54c5994149a29e07b572d?v=393b3c2767374d419548e506d9b8438d","intel":{"class":[{"refs":[{"t":"Potassium-competitive Acid Blockers Versus Proton Pump Inhibitors for Erosive Esophagitis: A Systematic Review and Network Meta-analysis (2026, NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/41821493/","n":"https://app.notion.com/p/39f9a76bfca6815197f7cc365cbc8aea"},{"t":"Vonoprazan Versus Lansoprazole in the Healing and Maintenance Phase of Erosive Esophagitis (2025, Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40742526/","n":"https://app.notion.com/p/3a09a76bfca6817498c5e105ef0ea691"},{"t":"P-CABs and PPIs for the healing and maintenance of erosive esophagitis. Esophagus 2026 (NMA, RCT 99건)","u":"https://pubmed.ncbi.nlm.nih.gov/42295653/","n":"https://app.notion.com/p/3b89a76bfca6811fb5bac3250c33c08f"}],"h":"중증 미란성 식도염 — 치유와 유지 모두에서 PPI 대비 우위","chips":[["RCT 19건","NMA 분석 대상"],["RR 1.09","2주 치유"],["RR 0.41","유지기 재발"]],"pts":["초기 치료, 특히 중증(LA C/D)에서 PPI보다 우수한 치유 효과","보노프라잔 대 란소프라졸 <b>직접비교</b> 메타분석(RCT 7건, 4,903명)에서 유의한 우위","이상반응 발생률은 두 군이 유사","단, RCT 99건 NMA는 고용량·이중지연방출형 PPI 대비 우월성이 일관되지 않다고 지적"]},{"refs":[{"t":"Evidence-Based Guidelines for the Diagnosis and Treatment of H. pylori Infection in Korea: 2025 Revised Edition (Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/42316523/","n":"https://app.notion.com/p/3b89a76bfca681b18428e0fbff0f779f"},{"t":"Guidelines for the management of H. pylori infection in Japan: 2024 revised edition (Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/41902905/","n":"https://app.notion.com/p/39e9a76bfca681d7a3b5c9a4fa08bd21"},{"t":"Efficacy and safety of antibiotic regimens for H. pylori eradication (2026, Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/42023096/","n":"https://app.notion.com/p/39f9a76bfca6818d8096d03e97caf4bc"}],"h":"H. pylori 제균 — 국내외 지침이 PPI 대체 옵션으로 공식 채택","chips":[["17.8% → 33.3%","클래리스로마이신 내성률"],["19,941명","메타분석 규모"]],"pts":["2025 한국 4차 개정 — P-CAB의 PPI 대체 사용 명시, 순차요법 삭제, 비스무스 사제요법 조건부 1차","2024 일본 개정 — 1주 삼제요법에서 P-CAB이 PPI보다 높은 제균율","57개 연구 메타분석에서도 P-CAB 기반 요법이 PPI 기반보다 우수"]}],"prod":[{"refs":[{"t":"Phase 3 Study of Zastaprazan vs Esomeprazole in Erosive Esophagitis. Am J Gastroenterol 2024;120(2):353-361","u":"https://pubmed.ncbi.nlm.nih.gov/38976448/","n":"https://app.notion.com/p/3a29a76bfca681c9a64dd080f1bba0d6"},{"t":"P-CABs and PPIs for the healing and maintenance of erosive esophagitis. Esophagus 2026 (NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/42295653/","n":"https://app.notion.com/p/3b89a76bfca6811fb5bac3250c33c08f"}],"h":"미란성 식도염 — 3상 비열등 확보, NMA에서는 우월 신호","chips":[["300명","3상 규모"],["RR 1.10","vs 보노프라잔 8주"]],"pts":["에소메프라졸 대비 8주 내시경 치유율에서 <b>비열등성</b> 입증","RCT 99건 NMA에서 보노프라잔 20mg QD 대비 8주 치유율 유의하게 높음 (95% CI 1.01–1.21)","4주 시점에서는 리나프라잔·보노프라잔과 동등","<b>간접비교</b> 결과이며 직접비교(head-to-head) RCT는 존재하지 않음"]},{"refs":[{"t":"Phase 3 Trial of Zastaprazan in Patients with Gastric Ulcers. Gut Liver 2026;20(4):562-574","u":"https://doi.org/10.5009/gnl250334","n":"https://app.notion.com/p/39e9a76bfca6811688dde6500047ac88"},{"t":"Zastaprazan: First Approval. Drugs 2024;84(7):863-866","u":"https://pubmed.ncbi.nlm.nih.gov/38916840/","n":"https://app.notion.com/p/3a29a76bfca68118a201c7daa3f260c1"}],"h":"위궤양 — 8주 PP 치유율 100%, 가스트린 상승은 가역적","chips":[["100%","자스타프라잔 (146/146)"],["97.06%","란소프라졸 (132/136)"]],"pts":["329명 3상에서 란소프라졸 30mg 대비 <b>비열등성</b> 입증","4주 치유율도 93.84% 대 91.91%로 우세","이상반응 발생률 유사, 가스트린은 치료 중 상승 후 종료 시 감소","2024년 4월 국내 미란성 GERD 승인 · 위궤양 및 NSAID 유발 궤양 예방 3상 진행 중"]}],"caveat":[{"refs":[{"t":"P-CABs and PPIs for the healing and maintenance of erosive esophagitis. Esophagus 2026 (NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/42295653/","n":"https://app.notion.com/p/3b89a76bfca6811fb5bac3250c33c08f"},{"t":"Comparator Choice in H. pylori Eradication: Tegoprazan-Amoxicillin Dual Therapy Versus an Optimized Bismuth-Containing Quadruple Therapy (2026, Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/42471066/","n":"https://app.notion.com/p/3a39a76bfca68109ae14d2aff8435ee2"}],"h":"직접비교와 간접비교(ITC)의 구분 필요","chips":[["82.95% 대 90.70%","TADT 대 EBQT 제균율"]],"pts":["자스타프라잔이 보노프라잔보다 우월하다는 결과는 NMA <b>간접비교</b> 추정치","연결 DB 내 두 약제의 직접비교(head-to-head) RCT는 없음","테고프라잔-아목시실린 이중요법은 표준 삼제요법 대비로는 우수하나, 최적화 비스무스 사제요법 대비로는 비열등 입증 실패"]},{"refs":[{"t":"Ten vs. 14 Days of Vonoprazan-Based Therapy for H. pylori (2026, Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/41952476/","n":"https://app.notion.com/p/39f9a76bfca681268f1fdcf8482f5fb1"},{"t":"P-CABs and PPIs for the healing and maintenance of erosive esophagitis. Esophagus 2026 (NMA, 유지요법 6개월)","u":"https://pubmed.ncbi.nlm.nih.gov/42295653/","n":"https://app.notion.com/p/3b89a76bfca6811fb5bac3250c33c08f"}],"h":"적응증·용량·투여기간이 다르면 결과 전용 불가","chips":[],"pts":["제균요법의 고용량·이중요법 용법과 GERD·궤양 치료 용법은 서로 다름","10일 대 14일 — 이중요법은 14일 근소 우위, 사제요법은 차이 없음","6개월 유지에서는 표준용량 PPI와 보노프라잔이 유사, 저용량 PPI만 열등 — 대조군 용량이 해석을 좌우"]},{"refs":[{"t":"Eradication of H. pylori With Vonoprazan-Amoxicillin Dual Therapy as an Alternative for Bismuth-Based Quadruple Therapy (2026, Meta)","u":"https://doi.org/10.1111/jgh.70565","n":"https://app.notion.com/p/39b9a76bfca681a7a22dc100fb4ce81e"},{"t":"PPIs for prevention of upper and lower gastrointestinal bleeding in patients taking aspirin (2026, Meta)","u":"https://doi.org/10.1007/s00228-026-04135-2","n":"https://app.notion.com/p/3a59a76bfca681559b73e2a7093133a6"},{"t":"Pantoprazole and Vonoprazan Performed Well in Preventing Peptic Ulcer Recurrence in Low-Dose Aspirin Users (2024, NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/38252210/","n":"https://app.notion.com/p/3a29a76bfca6811b8899f9cbdec437a1"},{"t":"ESGE Guideline Update 2026 — Endoscopic diagnosis and management of peptic ulcer bleeding","u":"https://pubmed.ncbi.nlm.nih.gov/42127996/","n":"https://app.notion.com/p/3b09a76bfca681fe9c7dd77c3795a3a3"}],"h":"동아시아 자료 편중과 출혈 예방 영역의 결과 불일치","chips":[["3,731명","전원 중국 자료"]],"pts":["보노프라잔 10일 대 14일 메타분석 7건은 전원 중국 자료","보노프라잔-아목시실린 이중요법 메타분석 저자들도 서구·비아시아 일반화 근거 부족을 명시","아스피린 복용자 — PPI가 P-CAB 대비 상부위장관출혈 위험이 유사하거나 오히려 높음","저용량 아스피린 NMA — 판토프라졸 1위, 보노프라잔 2위로 순위 상충","ESGE 2026 — 내시경 지혈 후 P-CAB 역할에 합의 실패"]}]},"overview":[{"k":"이번 주 핵심 이슈","c":"week","h":"P-CAB 기반 이중요법 — 클래스 근거 추가 확보","chips":[["6건","신규 문헌"],["3건","RCT"],["3건","H. pylori"]],"pts":["케베프라잔-아목시실린 이중요법이 에소메프라졸 기반 대비 <b>비열등성</b> 입증 — 87.9% 대 80.3% (ITT)","2차 치료에서 10일 비스무스 사제요법이 14일 순차요법을 크게 앞섬 — 87.3% 대 60.5%","2025 한국 가이드라인의 순차요법 삭제 방향이 실측으로 재확인됨"]},{"k":"P-CAB 계열 핵심 메시지","c":"navy","h":"중증 미란성 식도염과 H. pylori 제균, 두 핵심 적응증에서 PPI 대비 우위","chips":[["2개국","지침 채택"],["LA C/D","최대 이점 구간"]],"pts":["중증(LA C/D) 치유·유지에서 PPI 대비 이점이 지침·메타분석으로 확립","2025 한국·2024 일본 가이드라인이 모두 <b>PPI 대체 옵션</b>으로 명시","단, 고용량·이중지연방출형 PPI 대비 우월성은 일관되지 않음"]},{"k":"자스타프라잔 핵심 메시지","c":"orange","h":"3상 2건 확보, 그러나 계열 최대 영역인 제균은 공백","chips":[["2건","3상 비열등성 입증"],["100%","위궤양 8주 PP 치유율"],["0건","H. pylori 제균 근거"]],"pts":["미란성 식도염(대조 에소메프라졸)·위궤양(대조 란소프라졸) 3상에서 비열등성 입증","NMA에서 보노프라잔 대비 8주 치유율 우월 — RR 1.10 (95% CI 1.01–1.21), 단 <b>간접비교</b>","연결 DB 내 관련 문헌 9건, 145건 규모의 제균 영역에는 자사 자료 없음"]}],"weekly_dup":1,"weekTrend":{"stats":[["총 문헌","6","건"],["RCT","3","건"],["P-CAB 관련","2","건"],["최다 주제","H. pylori 제균",""]],"bullets":[{"h":"제균요법이 이번 주 근거의 절반 — RCT 3건 모두 H. pylori","chips":[["87.3% 대 60.5%","2차 치료"],["87.9% 대 80.3%","초치료"]],"pts":["<b>요법 최적화</b> — 10일 비스무스 사제요법이 14일 순차요법보다 우월 (ITT, p<0.0001)","<b>요법 최적화</b> — 케베프라잔-아목시실린 이중요법, 에소메프라졸 기반 대비 비열등","<b>적응증 확장</b> — 파킨슨병 환자 대상 제균 위약대조 RCT 발표, 위장관 외 이득 탐색"],"cls":""},{"h":"장기 산억제 안전성 신호 2건 — 모두 PPI 대상","chips":[["OR 6.10","십이지장 백색반점"],["3.5년","골다공증 발현까지"]],"pts":["8주 이상 사용군에서 십이지장 산재성 백색반점 47% 대 15% (보정 OR 6.10)","FAERS 5,500만 건 분석에서 에소메프라졸만 골다공증 양성 신호","둘 다 관찰·자발보고 기반 — 인과관계는 미확립이나 대응 논거 준비 필요"],"cls":"warn"},{"h":"자사 제품 신규 근거 없음 — P-CAB은 케베프라잔 1건뿐","chips":[["1건","성분 특정 P-CAB"],["0건","자스타프라잔"]],"pts":["P-CAB 관련 2건 중 성분이 특정된 것은 케베프라잔 1건","자스타프라잔 관련 신규 문헌은 발표되지 않음","비약물 대안으로 TIF 2.0 시술 1건 — 단일기관 28명 파일럿으로 근거 수준 낮음"],"cls":"acc"}]},"safety":[{"k":"2026 H2","period":"2026년 하반기 (7~12월) · 8월까지","n":{"PPI":38,"PCAB":30,"ZAS":3},"groups":[{"id":"PPI","name":"PPI","n":38,"items":[{"refs":[{"t":"Drug-induced microscopic colitis: a systematic review of implicated agents and… (2026-07 · SR)","u":"https://pubmed.ncbi.nlm.nih.gov/42517880/"}],"h":"약물유발 현미경적 대장염의 최다 원인 약물","chips":[["42%","원인 약물 비중 (29/69)"],["12일","발현까지 중앙값"]],"pts":["생검 확진 증례 69명(24개 연구) 등급화 결과 PPI가 1위","산분비억제제+NSAID 합산 시 전체의 52%","재생검 26예 중 22예에서 조직학적 정상화 — 중단으로 회복 가능"]},{"refs":[{"t":"FAERS-based pharmacovigilance and network toxicology analysis of… (2026-08 · 기타)","u":"https://pubmed.ncbi.nlm.nih.gov/42550808/"}],"h":"FAERS 골다공증 신호 — 에소메프라졸만 단독 양성","chips":[["5,500만 건","분석 규모"],["3.5년","발현까지 중앙값"]],"pts":["4개 알고리즘(ROR·PRR·BCPNN·EBGM) 모두에서 양성인 유일한 PPI","고령·여성·저체중이 독립 위험요인","자발보고 기반으로 인과관계 입증은 아님"]},{"refs":[{"t":"Association between Gastric Acid Suppression Therapy and Scattered White Spots in the… (2026-08 · 기타)","u":"https://doi.org/10.1055/a-2923-5524"}],"h":"8주 이상 사용 시 십이지장 점막 변화","chips":[["OR 6.10","보정 오즈비"],["47% 대 15%","백색반점 양성률"]],"pts":["환자 200명 후향 분석 (PPI 58 · P-CAB 42)","단일기관 관찰연구로 가설생성 수준"]}]},{"id":"PCAB","name":"P-CAB 계열","n":30,"items":[{"refs":[{"t":"Efficacy and Tolerability of Tegoprazan Compared to Proton Pump Inhibitors in the… (2026-07 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/42523882/"}],"h":"테고프라잔 내약성 — PPI와 유사","chips":[["0.97","이상반응 비율비"],["1,386명","RCT 5건 메타"]],"pts":["95% CI 0.68–1.37로 내약성 <b>비열등</b> 확인","치유율도 위험비 1.03으로 비열등"]},{"refs":[{"t":"Potassium-competitive Acid Blockers in Gastroesophageal Reflux Disease and Functional… (2026-07 · 기타)","u":"https://pubmed.ncbi.nlm.nih.gov/42504651/"}],"h":"장기 고가스트린혈증·점막변화 감시 권고 유지","chips":[],"pts":["한국 전문가 리뷰가 치료 효과를 인정하면서도 지속 감시 필요성을 재확인","보노프라잔·테고프라잔·펙수프라잔·케베프라잔·자스타프라잔 5종을 통합 평가"]}]},{"id":"ZAS","name":"자스타프라잔","n":3,"items":[{"refs":[{"t":"Randomized, Double-Blind, Active-Controlled, Parallel, Phase 3 Clinical Trial for… (2026-07 · RCT)","u":"https://doi.org/10.5009/gnl250334"}],"h":"위궤양 3상 — 이상반응 유사, 가스트린 상승은 가역적","chips":[["329명","3상 규모"]],"pts":["이상반응 발생률이 란소프라졸군과 유사","가스트린은 치료 중 상승 후 종료 시 감소"]},{"refs":[{"t":"A Multicenter, Randomized, Double-blind, Active-controlled, Parallel, Non-inferiority… (2026-08 · RCT)","u":"https://clinicaltrials.gov/study/NCT07732075"}],"h":"유지요법 장기 안전성 3상 착수 — 결과는 2028년","chips":[["384명","대상"],["2028-10","1차 완료 예정"]],"pts":["치유된 미란성 식도염 대상 JP-1366 10mg 대 란소프라졸 15mg 다국가 3상","2026년 8월 시작 — 현재 장기 유지 안전성 자료는 없음"]}]}]},{"k":"2026 H1","period":"2026년 상반기 (1~6월)","n":{"PPI":67,"PCAB":65,"ZAS":2},"groups":[{"id":"PPI","name":"PPI","n":67,"items":[{"refs":[{"t":"Safety of proton pump inhibitors: an overview of systematic reviews and meta-analyses (2026-06 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/42303374/"}],"h":"우산리뷰 — 위험 신호는 많으나 근거확실성은 낮음","chips":[["RR 1.75","급성신손상"],["RR 1.67","위암"],["OR 1.37","지역사회획득폐렴"]],"pts":["SR/메타분석 36편 종합, 만성신질환 RR 1.35 포함","AMSTAR-2 대부분 저품질 · GRADE 낮음~매우 낮음","대부분 관찰연구 기반"]},{"refs":[{"t":"Proton pump inhibitors and risk of Parkinson's disease: A systematic review and… (2026-04 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/41984194/"}],"h":"파킨슨병 위험 연관 보고","chips":[["344,580명","6편 메타"]],"pts":["유의한 연관이나 지역별로 유의성이 상이","전체 근거수준 낮음 — 대규모 전향적 연구 필요"]},{"refs":[{"t":"AGA Clinical Practice Update on Management of Gastric Polyps: Expert Review. (2026-02 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/41711625/"}],"h":"AGA — 위저선용종에서 정당한 PPI는 중단 불필요","chips":[["14개","모범진료권고"]],"pts":["선종성·과형성 용종 시 H. pylori 검사·치료 권고","위축성위염·장상피화생 동반 시 추가 감시내시경 필요"]}]},{"id":"PCAB","name":"P-CAB 계열","n":65,"items":[{"refs":[{"t":"Comparative efficacy and safety of potassium-competitive acid blockers and proton… (2026-02 · NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/41768276/"}],"h":"계열 간 안전성은 전반적으로 유사","chips":[["RCT 39건","NMA 규모"]],"pts":["미란성 식도염 치료에서 P-CAB과 PPI의 안전성 프로파일 유사","자스타프라잔·보노프라잔·에소메프라졸 40mg이 라베프라졸·오메프라졸보다 우수"]},{"refs":[{"t":"Tegoprazan-Amoxicillin Dual Therapy Versus Bismuth Quadruple Therapy Versus… (2026-04 · NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/42147649/"}],"h":"제균요법에서는 이상반응 이점이 반복 확인","chips":[["3,513명","NMA"],["12,714명","우산리뷰"]],"pts":["테고프라잔-아목시실린 이중요법 — 제균율 동등, 이상반응 유의하게 우수","메타분석 8편 우산리뷰에서도 테고프라잔 기반이 PPI 기반보다 이상반응 낮음"]},{"refs":[{"t":"Endoscopic diagnosis and management of peptic ulcer bleeding: European Society of… (2026-05 · Guideline)","u":"https://pubmed.ncbi.nlm.nih.gov/42127996/"}],"h":"내시경 지혈 후 역할은 합의 미도출","chips":[["19개","ESGE 권고사항"]],"pts":["ESGE 2026 소화성궤양 출혈 지침에서 P-CAB 역할 <b>합의 실패</b>"]}]},{"id":"ZAS","name":"자스타프라잔","n":2,"items":[{"refs":[{"t":"Comparative efficacy and safety of potassium-competitive acid blockers and proton… (2026-02 · NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/41768276/"}],"h":"계열 NMA에 포함 — 제품 고유 안전성 신규 자료 없음","chips":[["0건","단독 안전성 원저"]],"pts":["미란성 식도염 NMA 2건에 포함되어 계열 수준 평가를 공유","이 기간 자스타프라잔 단독 안전성 원저는 없음"]}]}]},{"k":"2025 H2","period":"2025년 하반기 (7~12월)","n":{"PPI":10,"PCAB":10,"ZAS":1},"groups":[{"id":"PPI","name":"PPI","n":10,"items":[{"refs":[{"t":"Proton pump inhibitors and risk of fracture in older adults: a systematic review and… (2025-08 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40848405/"}],"h":"고령자 골절 위험 — OR 1.41","chips":[["OR 1.41","95% CI 1.31–1.51"],["11건","관찰연구"]],"pts":["출판편향 없음 · 고품질 9건 포함","저자들은 신중 처방과 불필요 시 감량 권고"]},{"refs":[{"t":"Efficacy and Safety of Clopidogrel With and Without a Proton Pump Inhibitor: A… (2025-08 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40685887/"}],"h":"클로피도그렐 병용 — 효능 저해 없이 출혈 감소","chips":[["RR 1.08","심혈관사건"],["RR 0.13","위장관출혈"]],"pts":["RCT 14건 메타분석 (저편향위험 5건 포함)","병용이 항혈소판 효능을 크게 저해하지 않음"]},{"refs":[{"t":"Association Between Long-Term Proton Pump Inhibitor Use and Low-Risk Gastric… (2025-09 · 기타)","u":"https://pubmed.ncbi.nlm.nih.gov/41028638/"}],"h":"장기 사용과 저위험 위신경내분비종양","chips":[["0%","장기 사용군 원격전이"],["62%","미사용군 원격전이"]],"pts":["산발성 위NET 90명 후향 분석, 50%가 5년 이상 장기 복용 (p<0.0001)","예후가 양호한 별도 범주 가능성 제기"]}]},{"id":"PCAB","name":"P-CAB 계열","n":10,"items":[{"refs":[{"t":"Vonoprazan Versus Lansoprazole in the Healing and Maintenance Phase of Erosive… (2025-07 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40742526/"}],"h":"보노프라잔 대 란소프라졸 — 이상반응 유사","chips":[["4,903명","RCT 7건"]],"pts":["치유·유지 효과는 우월하나 이상반응 발생률은 동등"]},{"refs":[{"t":"Clinical pharmacokinetics of potassium competitive acid blockers: a systematic review… (2025-07 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40697654/"}],"h":"약물상호작용 — 클래리스로마이신 병용 시 노출 증가","chips":[["GMR 1.565","보노프라잔"],["GMR 2.624","테고프라잔"]],"pts":["약동학 연구 37건 SR/메타분석","보노프라잔의 CYP3A·CYP2C19 억제가 테고프라잔보다 큼"]},{"refs":[{"t":"Vonoprazan-containing Dual and Triple Therapies are Non-inferior to Bismuth-quadruple… (2025-09 · RCT)","u":"https://pubmed.ncbi.nlm.nih.gov/41004823/"}],"h":"실제 임상에서 이상반응 격차 뚜렷","chips":[["6.1% · 4.9%","보노프라잔 포함 요법"],["45.8%","비스무스 사제요법"]],"pts":["H. pylori 초치료 255명 전향적 실제임상 연구","제균율은 세 군 모두 유의한 차이 없음"]}]},{"id":"ZAS","name":"자스타프라잔","n":1,"items":[{"refs":[{"t":"Clinical pharmacokinetics of potassium competitive acid blockers: a systematic review… (2025-07 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40697654/"}],"h":"계열 약동학 리뷰에 포함","chips":[["37건","약동학 연구"]],"pts":["개별 약물상호작용 프로파일은 별도 보고되지 않음"]}]}]},{"k":"2025 H1","period":"2025년 상반기 (1~6월)","n":{"PPI":10,"PCAB":26,"ZAS":0},"groups":[{"id":"PPI","name":"PPI","n":10,"items":[{"refs":[{"t":"Risk factors for gastric cancer: an umbrella review of systematic reviews and… (2025-06 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40641920/"}],"h":"위암 위험인자 엄브렐라리뷰에 장기 사용 포함","chips":[["245개","메타분석 종합"],["17개","클래스 I–II 인자"]],"pts":["117개 위험·보호인자 중 PPI 장기사용이 위험 증가 인자로 분류","근거수준 클래스 I–II에 해당한 인자는 17개뿐"]},{"refs":[{"t":"Safety and efficacy of proton pump inhibitors in preterm infants with… (2025-03 · SR)","u":"https://pubmed.ncbi.nlm.nih.gov/40066936/"}],"h":"조산아에서는 이익·위해 근거 부족","chips":[["2건 · 62명","전체 RCT"]],"pts":["Cochrane 리뷰 결과 심폐호흡사건 효과는 근거가 매우 불확실","2차 지표에서도 유의한 차이 없음"]},{"refs":[{"t":"Proton Pump Inhibitor Use, Gastrointestinal Bleeding Reduction, and Long-Term… (2025-06 · 기타)","u":"https://pubmed.ncbi.nlm.nih.gov/40482871/"}],"h":"PCI 환자에서는 출혈 감소가 예후 개선을 매개","chips":[["6,457명","후향 코호트"]],"pts":["PPI 사용군의 위장관출혈 발생률이 낮음","급성관상동맥증후군에서 전체사망·주요심혈관사건 감소와 유의하게 연관"]}]},{"id":"PCAB","name":"P-CAB 계열","n":26,"items":[{"refs":[{"t":"The efficacy and safety of vonoprazan-based high-dose dual therapy for eradication of… (2025-04 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40220504/"}],"h":"고용량 이중요법 — 이상반응 절반 수준","chips":[["14.56%","보노프라잔 고용량 이중"],["26.00%","대조군"]],"pts":["RCT 13건 4,023명 메타분석 · 제균율 ITT 88.81% / PP 93.56%","순응도도 96.29% 대 93.56%로 우수"]},{"refs":[{"t":"Efficacy and safety of vonoprazan-amoxicillin dual therapy versus bismuth-containing… (2025-03 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/40177490/"}],"h":"보노프라잔-아목시실린 대 비스무스 사제요법","chips":[["86.9% 대 80.4%","ITT 제균율"]],"pts":["17개 연구 메타분석 · 순응도 RR 1.03","이상반응은 유의하게 적고 비용도 낮음"]},{"refs":[{"t":"Comparing the Efficacy and Safety of Fexuprazan and Lansoprazole for the Prevention… (2025-06 · RCT)","u":"https://pubmed.ncbi.nlm.nih.gov/40567214/"}],"h":"NSAID 궤양 예방에서 P-CAB 비열등 입증","chips":[["1.16% 대 2.76%","24주 궤양 발생률"]],"pts":["한국 32개 기관 423명 24주 RCT","비열등성 마진 8.3% 만족"]}]},{"id":"ZAS","name":"자스타프라잔","n":0,"items":[]}]},{"k":"2024 H2","period":"2024년 하반기 (7~12월)","n":{"PPI":25,"PCAB":29,"ZAS":1},"groups":[{"id":"PPI","name":"PPI","n":25,"items":[{"refs":[{"t":"Proton-Pump Inhibitors and Cardiovascular Adverse Events: A Meta-Analysis of… (2024-08 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/39207289/"}],"h":"심혈관 이상반응 — RCT 자료에서는 연관 불명확","chips":[],"pts":["100명 이상·30일 이상 대조시험만 포함","기존 관찰연구 결과의 재평가 필요성 제기"]},{"refs":[{"t":"A network meta-analysis: evaluating the efficacy and safety of concurrent proton pump… (2024-07 · NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/39114562/"}],"h":"PCI 후 클로피도그렐 병용 — 제제별 차이 분석","chips":[],"pts":["PPI 종류별 주요 심혈관 이상반응 위험 차이를 네트워크 메타분석으로 비교"]},{"refs":[{"t":"Does the Use of Gastric-Acid Suppressants Increase the Risk of Peritonitis in… (2024-08 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/39182173/"}],"h":"복막투석 환자의 복막염 위험","chips":[],"pts":["말기신부전 복막투석 환자에서 위산분비억제제 장기 사용과 세균성 복막염 연관 평가"]}]},{"id":"PCAB","name":"P-CAB 계열","n":29,"items":[{"refs":[{"t":"Efficacy and safety of vonoprazan versus proton pump inhibitors in the treatment of… (2024-09 · NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/39301419/"}],"h":"소화성궤양 영역 안전성 비교 근거 확대","chips":[],"pts":["보노프라잔 대 PPI NMA, P-CAB 대 PPI 메타분석이 잇달아 발표","치유율과 안전성 지표가 함께 비교됨"]},{"refs":[{"t":"Comparative Efficacy and Safety of Potassium-Competitive Acid Blocker-Based Dual… (2024-09 · NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/39298553/"}],"h":"요법 구성별 안전성 순위 제시","chips":[],"pts":["P-CAB 기반 이중·삼중·사제요법 NMA로 요법 간 상대적 우열 정리","고용량 아목시실린 이중요법의 이상반응·순응도 자료 축적"]}]},{"id":"ZAS","name":"자스타프라잔","n":1,"items":[{"refs":[{"t":"Randomized, Double-Blind, Active-Controlled Phase 3 Study to Evaluate Efficacy and… (2024-07 · RCT)","u":"https://pubmed.ncbi.nlm.nih.gov/38976448/"}],"h":"미란성 식도염 3상에서 안전성 포함 비열등","chips":[["300명","3상 규모"]],"pts":["에소메프라졸 대비 효과와 안전성을 함께 평가해 비열등성 확인"]}]}]},{"k":"2024 H1","period":"2024년 상반기 (1~6월)","n":{"PPI":24,"PCAB":29,"ZAS":0},"groups":[{"id":"PPI","name":"PPI","n":24,"items":[{"refs":[{"t":"Association between Proton Pump Inhibitor Use and Risk of Incident Chronic Kidney… (2024-06 · Meta)","u":"https://pubmed.ncbi.nlm.nih.gov/39061988/"}],"h":"만성신질환 발생 위험 연관","chips":[],"pts":["PPI 사용이 CKD 발생 위험 증가와 유의하게 연관","장기 처방 시 신기능 모니터링 필요성 제기"]},{"refs":[{"t":"Concomitant Administration of VEGFR Tyrosine Kinase and Proton Pump Inhibitors May… (2024-06 · 기타)","u":"https://pubmed.ncbi.nlm.nih.gov/39030142/"}],"h":"항암제 병용 시 노출 저해 우려","chips":[["451명","전이성 신세포암"]],"pts":["VEGFR TKI와 병용이 흡수·노출을 저해해 임상결과를 악화시킬 가능성"]},{"refs":[{"t":"Gastric Polyps in Long-Term Proton Pump Inhibitor Use: Identification of Risks and… (2024-06 · 기타)","u":"https://pubmed.ncbi.nlm.nih.gov/39006618/"}],"h":"장기 사용과 위용종","chips":[["약 1,000명","내시경 수검자"]],"pts":["1개월 이상 사용과 위저선용종 등 위용종 발생의 연관 및 위험인자 규명"]}]},{"id":"PCAB","name":"P-CAB 계열","n":29,"items":[{"refs":[{"t":"Comparative Efficacy and Safety of Potassium-Competitive Acid Blockers vs. Proton… (2024-05 · NMA)","u":"https://pubmed.ncbi.nlm.nih.gov/38931366/"}],"h":"소화성궤양에서 PPI 대비 우수 또는 비열등","chips":[["9,792명","56개 연구 NMA"]],"pts":["여러 지표에서 P-CAB이 PPI 대비 우수하거나 비열등"]},{"refs":[{"t":"Pharmacokinetic interactions between fexuprazan, a potassium-competitive acid… (2024-05 · RCT)","u":"https://pubmed.ncbi.nlm.nih.gov/38700290/"}],"h":"NSAID 병용 약동학 상호작용 확인","chips":[],"pts":["펙수프라잔과 세레콕시브·나프록센·멜록시캄 간 1상 교차시험","NSAID 궤양 예방 목적 병용처방의 안전성 근거"]},{"refs":[{"t":"Therapeutic efficacy and drug safety comparison of one-week Vonoprazan triple therapy… (2024-03 · RCT)","u":"https://pubmed.ncbi.nlm.nih.gov/38591272/"}],"h":"짧은 요법에서 이상반응 이점","chips":[["95% 대 93.4%","제균율"]],"pts":["보노프라잔 1주 삼제요법 vs 에소메프라졸 2주 삼제요법 (122명)","오심·쓴맛·복통·두통 등 이상반응은 유의하게 적음"]}]},{"id":"ZAS","name":"자스타프라잔","n":0,"items":[]}]}],"cards":[{"area":"미란성 식도염 치료","level":"높음","n":39,"hi":15,"rct":13,"oth":11,"note":"지침·메타분석 위주","pts":["NMA 다수 축적","중증(LA C/D)에서 PPI 대비 우위 반복 확인","고용량·이중지연방출형 PPI 대비 우월성은 일관되지 않음"],"drugs":[["보노프라잔",23],["테고프라잔",7],["펙수프라잔",5],["자스타프라잔",3]],"zas":3},{"area":"유지요법","level":"높음","n":16,"hi":5,"rct":6,"oth":5,"note":"RCT 위주","pts":["6개월 유지 근거는 표준용량 PPI와 대등 수준","보노프라잔은 란소프라졸 대비 재발 억제 RR 0.41의 직접비교 근거 보유","자스타프라잔 근거 1건으로 계열 내 최소"],"drugs":[["보노프라잔",11],["펙수프라잔",2],["리나프라잔",1],["자스타프라잔",1]],"zas":1},{"area":"H. pylori 제균 병용","level":"높음","n":145,"hi":33,"rct":59,"oth":53,"note":"RCT 위주","pts":["2025 한국·2024 일본 지침이 PPI 대체 옵션으로 명시","보노프라잔-아목시실린 이중요법 근거가 다수","대부분 동아시아 자료"],"drugs":[["보노프라잔",103],["테고프라잔",26],["케베프라잔",3],["펙수프라잔",3]],"zas":0},{"area":"소화성궤양 치료","level":"높음","n":26,"hi":8,"rct":12,"oth":6,"note":"RCT 위주","pts":["자스타프라잔 3상 포함 — 란소프라졸 대비 비열등","보노프라잔 대 PPI 메타분석으로 클래스 근거 확보","RCT 12건으로 근거의 절반 가까이가 시험 자료"],"drugs":[["보노프라잔",10],["테고프라잔",7],["펙수프라잔",4],["자스타프라잔",2]],"zas":2},{"area":"NSAID 관련 위장관 보호","level":"중간","n":14,"hi":3,"rct":4,"oth":7,"note":"관찰연구·원저 위주","pts":["RCT보다 관찰연구 비중이 높고 결과가 상충","ESGE 2026 — 내시경 지혈 후 P-CAB 역할에 합의 실패","자스타프라잔 NSAID 유발 궤양 예방 3상 진행 중, 공개 근거는 1건"],"drugs":[["테고프라잔",4],["펙수프라잔",2],["자스타프라잔",1],["보노프라잔",1]],"zas":1},{"area":"안전성·장기투여","level":"높음","n":16,"hi":5,"rct":5,"oth":6,"note":"관찰연구·원저 위주","pts":["고가스트린혈증·점막변화 장기 감시 필요성이 지침·전문가 리뷰에서 반복 지적","제균요법 비교시험에서는 PPI 기반 대비 이상반응이 일관되게 낮음","자스타프라잔 자료 2건 — 장기 유지 안전성 3상은 2028년 완료 예정"],"drugs":[["보노프라잔",10],["테고프라잔",4],["펙수프라잔",3],["자스타프라잔",2]],"zas":2},{"area":"기타 영역","level":"—","n":65,"hi":9,"rct":28,"oth":28,"note":"","pts":["약동학·약력학·DDI 25건 (중간)","상부위장관 출혈·ESD 후 궤양 18건 (중간)","비미란성 역류질환(NERD)·증상조절 11건 (중간)","식도외 증상·기타 적응증 11건 (중간)"],"drugs":[["보노프라잔",29],["테고프라잔",13],["펙수프라잔",10],["자스타프라잔",4]],"zas":4}]};</script>
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DRUGS='자스타프라잔|보노프라잔|테고프라잔|펙수프라잔|케베프라잔|리나프라잔|레바프라잔|에소메프라졸|란소프라졸|판토프라졸|오메프라졸|라베프라졸';
+const KW='비열등성|비열등한|우월했|우월하|우월성|유의하게|유의한|직접비교|간접비교|head-to-head|근거 격차|PPI 대체 옵션';
+const RX=new RegExp(
+  '((?:RR|OR|HR|GMR)\\s*\\d[\\d.]*(?:\\s*[(,]\\s*95%\\s*CI\\s*[\\d.,\\s–\\-~]+\\)?)?)'  // 1 effect size
+ +'|(95%\\s*CI\\s*\\d[\\d.]*\\s*[–\\-~]\\s*\\d[\\d.]*)'
+ +'|(p\\s*(?:&lt;|&gt;|=)\\s*0?\\.\\d+)'                                             // 2 p-value
+ +'|(\\d[\\d,]*(?:\\.\\d+)?\\s*(?:%p|%))'                                            // 3 percent
+ +'|(\\d[\\d,]*\\s*건)'                                                              // 4 count
+ +'|('+DRUGS+')'                                                                     // 5 drug
+ +'|('+KW+')','g');                                                                  // 6 keyword
+function rich(s){
+  return esc(s).replace(/&lt;(\/?)b&gt;/g,'<$1b>').replace(/&lt;(\/?)b class="(\w+)"&gt;/g,'<$1b class="$2">').replace(RX,(m,a,b,c,d,e,f)=>
+    (a||b||c) ? '<mark class="st">'+m+'</mark>'
+  : d         ? '<b class="num">'+m+'</b>'
+  : e         ? '<b class="dg">'+m+'</b>'
+  :             '<b class="kw">'+m+'</b>');
+}
+const D=window.APP;
+const TYAB={'Systematic Review':'SR','Guideline':'GL','Meta':'Meta','NMA':'NMA','RCT':'RCT','Review':'Review','etc.':'기타'};
+const tyCls=t=>({'Systematic Review':'SR','Guideline':'GL'}[t]||t.replace(/[^A-Za-z]/g,''));
+const LV={'높음':'hi','중간':'md','낮음':'lo'};
+
+$('#mDate').textContent=D.gen;
+$('#mTotal').textContent=D.total.toLocaleString();
+$('#mPcab').textContent=D.pcab.toLocaleString();
+
+$$('.tab').forEach(t=>t.addEventListener('click',()=>{
+  $$('.tab').forEach(x=>x.classList.remove('on'));
+  $$('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');$('#'+t.dataset.p).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+
+/* ---------- Overview ---------- */
+(function(){
+  $('#ovlist').innerHTML=D.overview.map(o=>`
+    <div class="ovrow ${o.c||''}">
+      <div class="k">${esc(o.k)}</div>
+      <div class="km-h">${rich(o.h)}</div>
+      ${chipHtml(o.chips)}
+      <ul class="pts">${o.pts.map(p=>`<li>${rich(p)}</li>`).join('')}</ul>
+    </div>`).join('');
+})();
+
+/* ---------- 1) Week Update ---------- */
+(function(){
+  const T=D.weekTrend;
+  $('#wkChips').textContent=`${D.win[0]} ~ ${D.win[1]}`;
+  $('#wkStats').innerHTML=T.stats.map(([l,v,u])=>
+    `<div><div class="l">${esc(l)}</div><div class="v${u?'':' txt'}">${esc(v)}${u?`<small>${u}</small>`:''}</div></div>`).join('');
+  $('#wkBl').innerHTML=T.bullets.map(b=>`<li class="${b.cls||''}">
+    <div class="km-h">${rich(b.h)}</div>${chipHtml(b.chips)}
+    <ul class="pts">${b.pts.map(p=>`<li>${rich(p)}</li>`).join('')}</ul></li>`).join('');
+})();
+(function(){
+  const w=D.weekly;
+  $('#wkNote').textContent=`${D.win[0]} ~ ${D.win[1]} 출판 · ${w.length}건`+(D.weekly_dup?` (중복 ${D.weekly_dup}건 제외)`:'');
+  if(!w.length){$('#weekTbl').innerHTML=`<tbody><tr><td class="empty">해당 기간 신규 문헌이 없습니다.</td></tr></tbody>`;return;}
+  $('#weekTbl').innerHTML=
+   `<thead><tr><th style="width:96px">출판일</th><th style="width:44%">논문 / 저널 / 논문 링크</th><th>핵심 요약</th></tr></thead>
+    <tbody>${w.map(r=>`<tr>
+      <td class="dt">${esc(r.pd)}</td>
+      <td>
+        <div style="margin-bottom:5px"><span class="tag ty ${tyCls(r.ty)}">${TYAB[r.ty]||r.ty}</span>${r.p?'<span class="tag pc">P-CAB</span>':''}${r.d.slice(0,2).map(d=>`<span class="tag dg">${esc(d)}</span>`).join('')}</div>
+        <div class="ttl">${esc(r.t)}</div>
+        <div class="jrn">${esc(r.a)}${r.a&&r.j?' · ':''}${esc(r.j)}</div>
+        <div class="lnk">${r.u?`<a href="${esc(r.u)}" target="_blank" rel="noopener">원문 ↗</a>`:''}${r.id?`<span>${esc(r.id)}</span>`:''}</div>
+      </td>
+      <td><div class="edit" contenteditable="true" style="font-size:15.6px;color:var(--ink-2);line-height:1.9;font-weight:500">${rich(r.sum)}</div>
+          <div class="abs">${esc(r.s)}</div>
+          <button class="expand">원문 초록요약 보기</button></td>
+    </tr>`).join('')}</tbody>`;
+})();
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.expand'); if(!b) return;
+  const tr=b.closest('tr'); tr.classList.toggle('open');
+  b.textContent=tr.classList.contains('open')?'원문 초록요약 접기':'원문 초록요약 보기';
+});
+
+/* ---------- 2) News Archive ---------- */
+(function(){
+  const A=D.archive; let cur=0;
+  $('#mrow').innerHTML=A.map((a,i)=>`<button class="mbtn${i===0?' on':''}" data-i="${i}">${a.m}</button>`).join('');
+  function draw(){
+    const a=A[cur];
+    $('#archBl').innerHTML=`
+      <li><div class="km-h">${rich(a.hA)}</div>${chipHtml(a.chipsA)}
+        <ul class="pts">${a.ptsA.map(p=>`<li>${rich(p)}</li>`).join('')}</ul></li>
+      <li class="acc"><div class="km-h">${rich(a.hB)}</div>${chipHtml(a.chipsB)}
+        <ul class="pts">${a.ptsB.map(p=>`<li>${rich(p)}</li>`).join('')}</ul>
+        ${refHtml(a.refsB)}</li>`;
+  }
+  $('#mrow').addEventListener('click',e=>{
+    const b=e.target.closest('.mbtn'); if(!b) return;
+    $$('.mbtn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+    cur=+b.dataset.i; draw();
+  });
+  draw();
+})();
+
+/* ---------- 3) Evidence Intelligence ---------- */
+function chipHtml(c,cls){
+  if(!c||!c.length) return '';
+  return '<div class="chips">'+c.map(([v,l])=>`<span class="chip ${cls||''}"><b>${esc(v)}</b><i>${esc(l)}</i></span>`).join('')+'</div>';
+}
+function refHtml(refs){
+  if(!refs||!refs.length) return '';
+  return '<div class="refs">'+refs.map(r=>`<div class="rl"><span class="b">근거</span>${
+    r.u?`<a href="${esc(r.u)}" target="_blank" rel="noopener">${esc(r.t)}</a>`:`<span class="noln">${esc(r.t)}</span>`}</div>`).join('')+'</div>';
+}
+function bullets(el,arr){
+  el.innerHTML=arr.map(b=>`<li class="${b.cls||''}">
+    <div class="km-h">${rich(b.h)}</div>${chipHtml(b.chips)}
+    <ul class="pts">${b.pts.map(p=>`<li>${rich(p)}</li>`).join('')}</ul>
+    ${refHtml(b.refs)}</li>`).join('');
+}
+bullets($('#msgClass'),D.intel.class);
+$('#zasNote').textContent=`연결 DB 내 자스타프라잔 관련 ${D.zas}건`;
+bullets($('#msgProd'),D.intel.prod);
+bullets($('#msgCaveat'),D.intel.caveat.map(b=>({...b,cls:'warn'})));
+
+/* ---------- 4) Evidence Landscape ---------- */
+(function(){
+  const C=D.cards, mx=Math.max(...C.map(c=>c.n));
+  $('#lgrid').innerHTML=C.map(c=>{
+    const w=v=>(c.n?(v/c.n*100):0).toFixed(1);
+    const lv=c.level==='높음'?'hi':(c.level==='중간'?'md':(c.level==='낮음'?'lo':''));
+    const drugs=(c.drugs||[]).map(([k,v])=>`<span class="dchip ${k==='자스타프라잔'?'zas':''}">${esc(k)} ${v}</span>`).join('')
+      + (c.zas?'':`<span class="dchip none">자스타프라잔 0</span>`);
+    return `<article class="lcard${c.area==='기타 영역'?' wide':''}">
+      <header class="lcard-h">
+        <div class="nm">${esc(c.area)}</div>
+        ${lv?`<span class="lvl ${lv}">${esc(c.level)}</span>`:''}
+      </header>
+      <div class="lcard-b">
+        <div class="lnum">
+          <span class="big">${c.n}<small>건</small></span>
+          <span class="split">지침·메타분석 <b>${c.hi}</b> · RCT <b>${c.rct}</b> · 기타 <b>${c.oth}</b></span>
+        </div>
+        <div class="lbar" title="지침·메타분석 ${c.hi} / RCT ${c.rct} / 기타 ${c.oth}">
+          <i class="s1" style="width:${w(c.hi)}%"></i><i class="s2" style="width:${w(c.rct)}%"></i><i class="s3" style="width:${w(c.oth)}%"></i>
+        </div>
+        <div class="ldrugs">${drugs}</div>
+        <ul class="pts sm">${(c.pts||[]).map(p=>`<li>${rich(p)}</li>`).join('')}</ul>
+      </div>
+    </article>`;
+  }).join('')
+  + '';
+  $('.lnote').insertAdjacentHTML('afterend',
+   `<div class="lleg"><span><i class="sw" style="background:var(--navy-700)"></i>지침·메타분석</span>
+    <span><i class="sw" style="background:var(--orange)"></i>RCT</span>
+    <span><i class="sw" style="background:#c9d2dc"></i>기타(관찰연구·원저 등)</span></div>`);
+})();
+
+/* ---------- 6) Safety Signal ---------- */
+(function(){
+  const S=D.safety; let cur=0;
+  $('#srow').innerHTML=S.map((s,i)=>`<button class="mbtn${i===0?' on':''}" data-i="${i}">${esc(s.k)}</button>`).join('');
+  const CLS={PPI:'ppi',PCAB:'pcab',ZAS:'zas'};
+  function draw(){
+    const s=S[cur];
+    $('#sgrid').innerHTML=s.groups.map(g=>`
+      <section class="sbox">
+        <header class="sbox-h ${CLS[g.id]}"><h3>${esc(g.name)}</h3><span class="c">안전성 관련 ${g.n}건</span></header>
+        ${g.items.length? g.items.map(it=>`<div class="sitem">
+            <div class="km-h" style="font-size:16.6px">${rich(it.h)}</div>
+            ${chipHtml(it.chips,'blue')}
+            <ul class="pts sm">${(it.pts||[]).map(p=>`<li>${rich(p)}</li>`).join('')}</ul>
+            ${refHtml(it.refs)}</div>`).join('')
+          : `<div class="snone">${s.period} 중 연결 DB에 수록된<br>자스타프라잔 안전성 문헌이 없습니다.</div>`}
+      </section>`).join('');
+  }
+  $('#srow').addEventListener('click',e=>{
+    const b=e.target.closest('.mbtn'); if(!b) return;
+    [...$('#srow').children].forEach(x=>x.classList.remove('on')); b.classList.add('on');
+    cur=+b.dataset.i; draw();
+  });
+  draw();
+})();
+</script>
+</body>
+</html>
